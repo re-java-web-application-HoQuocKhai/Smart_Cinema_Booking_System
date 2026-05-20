@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/common :: head('Smart Cinema - Chi tiết phim')}"></head>
+<body class="bg-dark-gradient">
+    <nav th:replace="~{fragments/common :: navbar}"></nav>
+
+    <div class="container py-5">
+        <!-- Navigation Breadcrumb / Go back -->
+        <div class="mb-4">
+            <a th:href="@{/admin/movies}" class="btn btn-outline-secondary btn-sm rounded-pill px-3">
+                <i class="bi bi-arrow-left me-1"></i> Quay lại danh sách
+            </a>
+        </div>
+
+        <div class="card bg-dark-card rounded-4 shadow-lg overflow-hidden border border-secondary border-opacity-10">
+            <div class="row g-0">
+                <!-- Left Column: Poster Image -->
+                <div class="col-md-4 bg-black d-flex align-items-center justify-content-center border-end border-secondary border-opacity-10 position-relative">
+                    <img th:if="${movie.posterUrl}" th:src="${movie.posterUrl}" class="img-fluid w-100 h-100 object-fit-cover" alt="Movie Poster" style="min-height: 450px; max-height: 600px;">
+                    <div th:unless="${movie.posterUrl}" class="text-center py-5 text-white-50">
+                        <i class="bi bi-image fs-1 mb-2"></i>
+                        <div>Chưa có poster</div>
+                    </div>
+                </div>
+
+                <!-- Right Column: Details Info -->
+                <div class="col-md-8 p-4 p-lg-5 d-flex flex-column justify-content-between">
+                    <div>
+                        <!-- Header -->
+                        <div class="d-flex flex-wrap align-items-center gap-2 mb-2">
+                            <span class="badge rounded-pill px-3 py-1.5"
+                                  th:classappend="${movie.status.name() == 'NOW_SHOWING'} ? 'bg-success' : (${movie.status.name() == 'COMING_SOON'} ? 'bg-warning text-dark' : 'bg-secondary')"
+                                  th:switch="${movie.status.name()}">
+                                <span th:case="'NOW_SHOWING'"><i class="bi bi-play-fill me-1"></i> Đang chiếu</span>
+                                <span th:case="'COMING_SOON'"><i class="bi bi-hourglass-split me-1"></i> Sắp chiếu</span>
+                                <span th:case="'ENDED'"><i class="bi bi-stop-fill me-1"></i> Ngừng chiếu</span>
+                            </span>
+                            <span class="badge bg-secondary bg-opacity-50 text-white rounded-pill px-3 py-1.5" th:text="${movie.ageRating ?: 'P'}">P</span>
+                        </div>
+                        
+                        <h1 class="text-white fw-bold mb-3" th:text="${movie.title}">Tên Phim</h1>
+
+                        <!-- Meta List -->
+                        <div class="row g-3 mb-4 text-white-50 small">
+                            <div class="col-6 col-sm-4">
+                                <div class="text-white-50">ID:</div>
+                                <div class="fw-semibold text-white mt-1" th:text="${movie.id}">1</div>
+                            </div>
+                            <div class="col-6 col-sm-4">
+                                <div class="text-white-50"><i class="bi bi-clock me-1"></i> Thời lượng:</div>
+                                <div class="fw-semibold text-white mt-1" th:text="${movie.durationMinutes + ' phút'}">120 phút</div>
+                            </div>
+                            <div class="col-6 col-sm-4">
+                                <div class="text-white-50"><i class="bi bi-calendar-event me-1"></i> Phát hành:</div>
+                                <div class="fw-semibold text-white mt-1" th:text="${movie.releaseDate ?: 'Chưa cập nhật'}">2026-01-01</div>
+                            </div>
+                            <div class="col-6 col-sm-4">
+                                <div class="text-white-50"><i class="bi bi-translate me-1"></i> Ngôn ngữ:</div>
+                                <div class="fw-semibold text-white mt-1" th:text="${movie.language ?: 'Tiếng Việt'}">Tiếng Việt</div>
+                            </div>
+                            <div class="col-12 col-sm-8">
+                                <div class="text-white-50"><i class="bi bi-tags me-1"></i> Thể loại:</div>
+                                <div class="d-flex flex-wrap gap-1 mt-1">
+                                    <span th:if="${movie.genres.isEmpty()}" class="text-white-50">Chưa gán thể loại</span>
+                                    <span th:each="genre : ${movie.genres}" class="badge bg-primary bg-opacity-20 text-white border border-primary border-opacity-10" th:text="${genre.name}">Genre</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Description -->
+                        <div class="mb-4 border-top border-secondary border-opacity-10 pt-4" th:if="${movie.description != null && !movie.description.isEmpty()}">
+                            <h5 class="text-white fw-bold mb-2">Mô tả</h5>
+                            <p class="text-white-50 lh-lg" style="font-size: 0.95rem;" th:text="${movie.description}">Nội dung phim...</p>
+                        </div>
+
+                        <!-- Trailer Button -->
+                        <div class="mb-4" th:if="${movie.trailerUrl != null && !movie.trailerUrl.isEmpty()}">
+                            <a th:href="${movie.trailerUrl}" target="_blank" class="btn btn-outline-primary rounded-pill px-4 btn-sm">
+                                <i class="bi bi-play-circle me-1"></i> Xem Trailer
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Footer Action buttons -->
+                    <div class="border-top border-secondary border-opacity-10 pt-4 mt-4 d-flex flex-wrap gap-2 justify-content-between align-items-center small text-white-50">
+                        <div>
+                            <span>Ngày tạo: </span>
+                            <span class="text-white" th:text="${movie.createdAt}">2026-01-01</span>
+                        </div>
+                        <div class="d-flex gap-2">
+                            <a th:href="@{/admin/movies/{id}/edit(id=${movie.id})}" class="btn btn-primary rounded-pill px-4 shadow">
+                                <i class="bi bi-pencil-square me-2"></i> Chỉnh sửa
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer th:replace="~{fragments/common :: footer}"></footer>
+    <div th:replace="~{fragments/common :: scripts}"></div>
+</body>
+</html>

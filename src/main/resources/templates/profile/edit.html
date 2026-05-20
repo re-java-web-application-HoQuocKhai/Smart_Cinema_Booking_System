@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/common :: head('Smart Cinema - Chỉnh sửa hồ sơ')}"></head>
+<body class="bg-dark-gradient d-flex flex-column min-vh-100">
+    <nav th:replace="~{fragments/common :: navbar}"></nav>
+
+    <div class="container py-5 my-auto">
+        <div class="row justify-content-center">
+            <div class="col-md-6 col-lg-5">
+                <div class="card bg-dark-card rounded-4 p-4 p-md-5 shadow-lg border-secondary border-opacity-25">
+                    
+                    <h2 class="text-gradient fw-bold mb-4 text-center d-flex align-items-center justify-content-center gap-2">
+                        <i class="bi bi-pencil-square"></i> Chỉnh sửa hồ sơ
+                    </h2>
+
+                    <!-- Server error -->
+                    <div th:if="${error}" class="alert alert-danger bg-danger bg-opacity-10 text-danger border border-danger border-opacity-25 rounded-3 mb-4 shadow-sm" role="alert">
+                        <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                        <span th:text="${error}">Đã xảy ra lỗi!</span>
+                    </div>
+
+                    <form th:action="@{/profile/edit}" th:object="${profileRequest}" method="post" class="needs-validation" novalidate>
+
+                        <!-- Họ và tên -->
+                        <div class="form-floating mb-3">
+                            <input type="text" class="form-control bg-transparent border-secondary border-opacity-25 text-white" 
+                                   id="fullName" th:field="*{fullName}" placeholder="Họ và tên *" 
+                                   th:classappend="${#fields.hasErrors('fullName')} ? 'is-invalid'" required>
+                            <label for="fullName" class="text-white-50">
+                                <i class="bi bi-person me-1 text-gradient"></i> Họ và tên *
+                            </label>
+                            <div class="invalid-feedback text-danger" th:if="${#fields.hasErrors('fullName')}" th:errors="*{fullName}"></div>
+                        </div>
+
+                        <!-- Số điện thoại -->
+                        <div class="form-floating mb-3">
+                            <input type="text" class="form-control bg-transparent border-secondary border-opacity-25 text-white" 
+                                   id="phone" th:field="*{phone}" placeholder="Số điện thoại" 
+                                   th:classappend="${#fields.hasErrors('phone')} ? 'is-invalid'">
+                            <label for="phone" class="text-white-50">
+                                <i class="bi bi-telephone me-1 text-gradient"></i> Số điện thoại
+                            </label>
+                            <div class="invalid-feedback text-danger" th:if="${#fields.hasErrors('phone')}" th:errors="*{phone}"></div>
+                        </div>
+
+                        <!-- Ngày sinh -->
+                        <div class="form-floating mb-3">
+                            <input type="date" class="form-control bg-transparent border-secondary border-opacity-25 text-white text-uppercase" 
+                                   id="dateOfBirth" th:field="*{dateOfBirth}" placeholder="Ngày sinh" 
+                                   th:classappend="${#fields.hasErrors('dateOfBirth')} ? 'is-invalid'">
+                            <label for="dateOfBirth" class="text-white-50">
+                                <i class="bi bi-calendar me-1 text-gradient"></i> Ngày sinh
+                            </label>
+                            <div class="invalid-feedback text-danger" th:if="${#fields.hasErrors('dateOfBirth')}" th:errors="*{dateOfBirth}"></div>
+                        </div>
+
+                        <!-- Giới tính -->
+                        <div class="form-floating mb-4">
+                            <select class="form-select bg-transparent border-secondary border-opacity-25 text-white" 
+                                    id="gender" th:field="*{gender}">
+                                <option value="" class="bg-dark text-white">-- Chọn giới tính --</option>
+                                <option th:each="g : ${genders}" th:value="${g}" 
+                                        th:text="${g == T(com.re.smart_cinema_booking_system.enums.Gender).MALE ? 'Nam' : (g == T(com.re.smart_cinema_booking_system.enums.Gender).FEMALE ? 'Nữ' : 'Khác')}" 
+                                        class="bg-dark text-white"></option>
+                            </select>
+                            <label for="gender" class="text-white-50">
+                                <i class="bi bi-gender-ambiguous me-1 text-gradient"></i> Giới tính
+                            </label>
+                        </div>
+
+                        <!-- Actions -->
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary rounded-pill py-2 shadow-sm fw-semibold">
+                                <i class="bi bi-save me-2"></i> Lưu thay đổi
+                            </button>
+                            <a th:href="@{/profile}" class="btn btn-outline-secondary rounded-pill py-2">
+                                <i class="bi bi-x-circle me-2"></i> Hủy
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer th:replace="~{fragments/common :: footer}"></footer>
+    <div th:replace="~{fragments/common :: scripts}"></div>
+</body>
+</html>

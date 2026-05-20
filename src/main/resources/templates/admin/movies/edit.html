@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/common :: head('Smart Cinema - Chỉnh sửa phim')}"></head>
+<body class="bg-dark-gradient">
+    <nav th:replace="~{fragments/common :: navbar}"></nav>
+
+    <div class="container py-5">
+        <div class="mb-4">
+            <a th:href="@{/admin/movies/{id}(id=${movieId})}" class="btn btn-outline-secondary btn-sm rounded-pill px-3">
+                <i class="bi bi-arrow-left me-1"></i> Quay lại chi tiết
+            </a>
+        </div>
+
+        <div class="card bg-dark-card rounded-4 shadow-lg p-4 p-md-5 border border-secondary border-opacity-10">
+            <h2 class="text-gradient mb-4"><i class="bi bi-pencil-square"></i> Chỉnh sửa phim</h2>
+
+            <div th:if="${error}" class="alert alert-danger alert-dismissible fade show bg-danger bg-opacity-10 text-danger border border-danger border-opacity-25 rounded-3 mb-4" role="alert">
+                <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                <span th:text="${error}">Đã xảy ra lỗi!</span>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+
+            <form th:action="@{/admin/movies/{id}/edit(id=${movieId})}" th:object="${movieRequest}" method="post">
+                <div class="row g-4">
+                    <!-- Title -->
+                    <div class="col-12">
+                        <label for="title" class="form-label fw-semibold">Tên phim <span class="text-danger">*</span></label>
+                        <input type="text" id="title" th:field="*{title}" class="form-control bg-transparent text-white border-secondary border-opacity-25" required>
+                        <div th:if="${#fields.hasErrors('title')}" class="invalid-feedback" th:errors="*{title}">Lỗi tên phim</div>
+                    </div>
+
+                    <!-- Description -->
+                    <div class="col-12">
+                        <label for="description" class="form-label fw-semibold">Mô tả phim</label>
+                        <textarea id="description" th:field="*{description}" rows="4" class="form-control bg-transparent text-white border-secondary border-opacity-25"></textarea>
+                    </div>
+
+                    <!-- Duration, Age Rating, Status -->
+                    <div class="col-md-4">
+                        <label for="durationMinutes" class="form-label fw-semibold">Thời lượng (phút) <span class="text-danger">*</span></label>
+                        <input type="number" id="durationMinutes" th:field="*{durationMinutes}" min="1" max="600" class="form-control bg-transparent text-white border-secondary border-opacity-25" required>
+                        <div th:if="${#fields.hasErrors('durationMinutes')}" class="invalid-feedback" th:errors="*{durationMinutes}">Lỗi thời lượng</div>
+                    </div>
+
+                    <div class="col-md-4">
+                        <label for="ageRating" class="form-label fw-semibold">Xếp hạng tuổi</label>
+                        <select id="ageRating" th:field="*{ageRating}" class="form-select bg-dark-card text-white border-secondary border-opacity-25">
+                            <option value="">-- Chọn --</option>
+                            <option value="P">P (Phổ thông)</option>
+                            <option value="T13">T13 (13+)</option>
+                            <option value="T16">T16 (16+)</option>
+                            <option value="T18">T18 (18+)</option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-4">
+                        <label for="status" class="form-label fw-semibold">Trạng thái <span class="text-danger">*</span></label>
+                        <select id="status" th:field="*{status}" class="form-select bg-dark-card text-white border-secondary border-opacity-25" required>
+                            <option value="">-- Chọn --</option>
+                            <option th:each="s : ${statuses}" th:value="${s}"
+                                    th:text="${s.name() == 'COMING_SOON' ? 'Sắp chiếu' : (s.name() == 'NOW_SHOWING' ? 'Đang chiếu' : 'Ngừng chiếu')}"></option>
+                        </select>
+                        <div th:if="${#fields.hasErrors('status')}" class="invalid-feedback" th:errors="*{status}">Lỗi trạng thái</div>
+                    </div>
+
+                    <!-- Release Date & Language -->
+                    <div class="col-md-6">
+                        <label for="releaseDate" class="form-label fw-semibold">Ngày phát hành</label>
+                        <input type="date" id="releaseDate" th:field="*{releaseDate}" class="form-control bg-transparent text-white border-secondary border-opacity-25">
+                    </div>
+
+                    <div class="col-md-6">
+                        <label for="language" class="form-label fw-semibold">Ngôn ngữ</label>
+                        <input type="text" id="language" th:field="*{language}" class="form-control bg-transparent text-white border-secondary border-opacity-25">
+                    </div>
+
+                    <!-- Poster & Preview -->
+                    <div class="col-md-6">
+                        <label for="posterUrl" class="form-label fw-semibold">URL Poster</label>
+                        <input type="text" id="posterUrl" th:field="*{posterUrl}" class="form-control bg-transparent text-white border-secondary border-opacity-25">
+                        <div th:if="${#fields.hasErrors('posterUrl')}" class="invalid-feedback" th:errors="*{posterUrl}">Lỗi URL poster</div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="form-label fw-semibold">Poster Preview</div>
+                        <div class="border border-secondary border-opacity-25 rounded-3 d-flex align-items-center justify-content-center overflow-hidden bg-black bg-opacity-30" style="width: 150px; height: 220px;">
+                            <img id="posterPreview" th:src="*{posterUrl}" class="img-fluid object-fit-cover w-100 h-100" style="display: none;">
+                            <span id="posterPlaceholder" class="text-white-50 small"><i class="bi bi-image me-1"></i> Preview</span>
+                        </div>
+                    </div>
+
+                    <!-- Trailer URL -->
+                    <div class="col-12">
+                        <label for="trailerUrl" class="form-label fw-semibold">URL Trailer</label>
+                        <input type="text" id="trailerUrl" th:field="*{trailerUrl}" class="form-control bg-transparent text-white border-secondary border-opacity-25">
+                        <div th:if="${#fields.hasErrors('trailerUrl')}" class="invalid-feedback" th:errors="*{trailerUrl}">Lỗi URL trailer</div>
+                    </div>
+
+                    <!-- Genres -->
+                    <div class="col-12">
+                        <label class="form-label fw-semibold d-block">Thể loại</label>
+                        <div class="row row-cols-2 row-cols-sm-3 row-cols-md-4 g-3 mt-1">
+                            <div class="col" th:each="genre : ${genres}">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="genreIds" th:value="${genre.id}" th:id="'genre-' + ${genre.id}"
+                                           th:checked="${movieRequest.genreIds != null && movieRequest.genreIds.contains(genre.id)}">
+                                    <label class="form-check-label text-white-50" th:for="'genre-' + ${genre.id}" th:text="${genre.name}">
+                                        Thể loại
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Form Action buttons -->
+                    <div class="col-12 border-top border-secondary border-opacity-10 pt-4 mt-5">
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-primary rounded-pill px-4 shadow">
+                                <i class="bi bi-save me-2"></i> Lưu thay đổi
+                            </button>
+                            <a th:href="@{/admin/movies/{id}(id=${movieId})}" class="btn btn-outline-secondary rounded-pill px-4">
+                                Hủy
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <footer th:replace="~{fragments/common :: footer}"></footer>
+    <div th:replace="~{fragments/common :: scripts}"></div>
+
+    <!-- Live Poster Preview Script -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const posterInput = document.getElementById('posterUrl');
+            const previewImg = document.getElementById('posterPreview');
+            const placeholder = document.getElementById('posterPlaceholder');
+
+            function updatePreview() {
+                const url = posterInput.value.trim();
+                if (url) {
+                    previewImg.src = url;
+                    previewImg.style.display = 'block';
+                    placeholder.style.display = 'none';
+                } else {
+                    previewImg.style.display = 'none';
+                    placeholder.style.display = 'block';
+                }
+            }
+
+            posterInput.addEventListener('input', updatePreview);
+            // Run on load in case there's value
+            updatePreview();
+        });
+    </script>
+</body>
+</html>

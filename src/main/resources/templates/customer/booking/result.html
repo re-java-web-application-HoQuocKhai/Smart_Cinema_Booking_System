@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/common :: head('Smart Cinema - Đặt vé thành công')}"></head>
+<body class="bg-dark-gradient">
+    <nav th:replace="~{fragments/common :: navbar}"></nav>
+
+    <div class="container py-5" style="max-width: 650px;">
+        <div class="card bg-dark-card rounded-4 shadow-lg p-4 p-md-5 border border-success border-opacity-25" style="border-top: 6px solid #2ed573 !important;">
+            
+            <!-- Success Animation / Header -->
+            <div class="text-center mb-4">
+                <div class="d-inline-flex align-items-center justify-content-center bg-success bg-opacity-10 text-success rounded-circle mb-3 animate-pulse" style="width: 80px; height: 80px;">
+                    <i class="bi bi-check-circle-fill" style="font-size: 3rem;"></i>
+                </div>
+                <h2 class="text-success fw-bold">Đặt Vé Thành Công!</h2>
+                <p class="text-white-50">Cảm ơn bạn đã lựa chọn dịch vụ của Smart Cinema.</p>
+            </div>
+
+            <!-- Booking Summary -->
+            <div class="p-4 bg-black bg-opacity-20 rounded-3 border border-secondary border-opacity-10 mb-4">
+
+
+                <div class="d-flex justify-content-between py-2.5 dashed-row align-items-center">
+                    <span class="text-white-50 small">Mã đặt vé (Booking Code):</span>
+                    <strong class="text-gradient fs-5 fw-bold" th:text="${booking.bookingCode}">BK1234567890</strong>
+                </div>
+                <div class="d-flex justify-content-between py-2.5 dashed-row align-items-center">
+                    <span class="text-white-50 small">Tên phim:</span>
+                    <strong class="text-white" th:text="${booking.tickets[0].movieTitleSnapshot}">Huyền Thoại Biển Xanh</strong>
+                </div>
+                <div class="d-flex justify-content-between py-2.5 dashed-row align-items-center">
+                    <span class="text-white-50 small">Rạp & Phòng chiếu:</span>
+                    <span class="text-white fw-semibold" th:text="${booking.tickets[0].cinemaNameSnapshot} + ' - ' + ${booking.tickets[0].roomNameSnapshot}">CGV - Phòng 1</span>
+                </div>
+                <div class="d-flex justify-content-between py-2.5 dashed-row align-items-center">
+                    <span class="text-white-50 small">Suất chiếu:</span>
+                    <span class="text-white" th:text="${#temporals.format(booking.tickets[0].showtimeSnapshot, 'HH:mm dd/MM/yyyy')}">08:00 20/05/2026</span>
+                </div>
+                <div class="d-flex justify-content-between py-2.5 dashed-row align-items-center">
+                    <span class="text-white-50 small">Ghế đã mua:</span>
+                    <div class="d-flex flex-wrap gap-1 justify-content-end">
+                        <span th:each="t : ${booking.tickets}" 
+                              th:text="${t.seatLabelSnapshot}" 
+                              class="badge bg-info text-dark rounded px-2 py-1 fw-bold">
+                              A1
+                        </span>
+                    </div>
+                </div>
+                <div class="d-flex justify-content-between py-2.5 dashed-row align-items-center">
+                    <span class="text-white-50 small">Phương thức thanh toán:</span>
+                    <span class="text-white-50" th:text="${booking.paymentMethod == T(com.re.smart_cinema_booking_system.enums.PaymentMethod).CASH ? 'Tiền mặt tại quầy' : 'Chuyển khoản'}">CASH</span>
+                </div>
+                <div class="d-flex justify-content-between py-2.5 dashed-row align-items-center">
+                    <span class="text-white-50 small">Trạng thái thanh toán:</span>
+                    <span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25" th:text="${booking.paymentStatus}">SUCCESS</span>
+                </div>
+                <div class="d-flex justify-content-between py-3 border-top border-secondary border-opacity-20 mt-2 align-items-center">
+                    <span class="text-white fw-bold">Tổng thanh toán:</span>
+                    <strong class="text-gradient fs-4 fw-bold" th:text="${#numbers.formatInteger(booking.totalAmount.intValue(), 3, 'COMMA') + ' đ'}">150,000 đ</strong>
+                </div>
+            </div>
+
+            <!-- Helpful tips -->
+            <div class="alert alert-info bg-info bg-opacity-10 text-info border border-info border-opacity-25 rounded-3 d-flex align-items-start gap-3 p-3 mb-4" role="alert">
+                <i class="bi bi-info-circle-fill fs-5 mt-0.5"></i>
+                <div class="small">
+                    <strong>Hướng dẫn nhận vé cứng:</strong> Vui lòng lưu lại Mã đặt vé <strong class="text-white text-decoration-underline" th:text="${booking.bookingCode}"></strong> và đưa cho nhân viên tại quầy vé để được hỗ trợ quét barcode, in vé cứng và lựa chọn thêm combo bắp nước đi kèm.
+                </div>
+            </div>
+
+            <!-- CTA Actions -->
+            <div class="text-center border-top border-secondary border-opacity-10 pt-4 mt-4">
+                <div class="d-flex flex-column flex-sm-row justify-content-center gap-3">
+                    <a th:href="@{/home}" class="btn btn-primary rounded-pill px-4 py-2.5 shadow">
+                        <i class="bi bi-house-door-fill me-2"></i> Về trang chủ
+                    </a>
+                    <a th:href="@{/customer/booking}" class="btn btn-outline-secondary rounded-pill px-4 py-2.5">
+                        <i class="bi bi-ticket-perforated me-2"></i> Tiếp tục đặt vé
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer th:replace="~{fragments/common :: footer}"></footer>
+    <div th:replace="~{fragments/common :: scripts}"></div>
+</body>
+</html>

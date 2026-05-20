@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/common :: head('Smart Cinema - Xác nhận đặt vé')}"></head>
+<body class="bg-dark-gradient">
+    <nav th:replace="~{fragments/common :: navbar}"></nav>
+
+    <div class="container py-5" style="max-width: 800px;">
+        <!-- Countdown Timer -->
+        <div class="card bg-dark-card border-warning border-opacity-25 rounded-4 p-4 text-center mb-4 shadow-lg">
+            <h5 class="text-warning fw-bold mb-2">
+                <i class="bi bi-hourglass-split animate-pulse me-1"></i> Vé của bạn đang được giữ tạm thời
+            </h5>
+            <p class="text-white-50 small mb-2">Vui lòng hoàn tất thanh toán trước khi thời gian giữ ghế hết hiệu lực:</p>
+            <span id="timer" class="display-5 fw-bold text-danger font-monospace">10:00</span>
+        </div>
+
+        <!-- Checkout Form Card -->
+        <div class="card bg-dark-card rounded-4 shadow-lg p-4 p-md-5 border border-secondary border-opacity-10">
+            <h2 class="text-gradient fw-bold mb-4 text-center"><i class="bi bi-cart-check"></i> Xác nhận đơn đặt vé</h2>
+
+            <div th:if="${error}" class="alert alert-danger alert-dismissible fade show bg-danger bg-opacity-10 text-danger border border-danger border-opacity-25 rounded-3 mb-4" role="alert">
+                <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                <span th:text="${error}"></span>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+
+            <!-- Booking detail table -->
+            <div class="table-responsive mb-4">
+                <table class="table align-middle text-white border-secondary border-opacity-10">
+                    <tbody>
+                        <tr>
+                            <td class="text-white-50 py-3 border-secondary border-opacity-10" style="width: 30%;">Phim:</td>
+                            <td class="fw-bold py-3 border-secondary border-opacity-10 fs-5 text-white" th:text="${showtime.movie.title}">Tên phim</td>
+                        </tr>
+                        <tr>
+                            <td class="text-white-50 py-3 border-secondary border-opacity-10">Rạp chiếu:</td>
+                            <td class="py-3 border-secondary border-opacity-10 text-white" th:text="${showtime.room.cinema.name}">CGV Vincom</td>
+                        </tr>
+                        <tr>
+                            <td class="text-white-50 py-3 border-secondary border-opacity-10">Phòng chiếu:</td>
+                            <td class="py-3 border-secondary border-opacity-10 text-white" th:text="${showtime.room.name} + ' (' + ${showtime.room.roomType} + ')'">Phòng 1</td>
+                        </tr>
+                        <tr>
+                            <td class="text-white-50 py-3 border-secondary border-opacity-10">Giờ chiếu:</td>
+                            <td class="py-3 border-secondary border-opacity-10 text-white" th:text="${#temporals.format(showtime.startTime, 'HH:mm dd/MM/yyyy')}">08:00 20/05/2026</td>
+                        </tr>
+                        <tr>
+                            <td class="text-white-50 py-3 border-secondary border-opacity-10">Ghế đã chọn:</td>
+                            <td class="py-3 border-secondary border-opacity-10">
+                                <div class="d-flex flex-wrap gap-2">
+                                    <span th:each="sh : ${heldSeats}" 
+                                          th:text="${sh.seat.seatLabel} + ' (' + ${sh.seat.seatType.name} + ') '" 
+                                          class="badge bg-info text-dark rounded px-2 py-1.5 fw-semibold small">
+                                          A1
+                                    </span>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="text-white fw-bold py-3 border-top border-secondary border-opacity-25 fs-5">Tổng tiền:</td>
+                            <td class="text-gradient fw-bold py-3 border-top border-secondary border-opacity-25 fs-3" 
+                                th:text="${#numbers.formatInteger(totalAmount.intValue(), 3, 'COMMA') + ' đ'}">
+                                150,000 đ
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Confirmation form -->
+            <form th:action="@{/customer/booking/confirm}" method="post">
+                <input type="hidden" name="showtimeId" th:value="${showtime.id}">
+                
+                <!-- Hidden inputs for seatIds to transmit back to controller -->
+                <input type="hidden" name="seatIds" th:each="sh : ${heldSeats}" th:value="${sh.seat.id}">
+
+                <!-- Payment Method -->
+                <div class="mb-4">
+                    <label for="paymentMethod" class="form-label fw-bold text-white"><i class="bi bi-credit-card-2-front me-1"></i> Phương thức thanh toán <span class="text-danger">*</span></label>
+                    <select id="paymentMethod" name="paymentMethod" class="form-select bg-dark-card text-white border-secondary border-opacity-25 py-2.5" required>
+                        <option th:each="method : ${paymentMethods}" 
+                                th:value="${method}" 
+                                th:text="${method.name() == 'CASH' ? 'Thanh toán tại quầy (CASH)' : 
+                                         (method.name() == 'BANKING' ? 'Chuyển khoản ngân hàng (BANKING)' : method.name())}">
+                                CASH
+                        </option>
+                    </select>
+                </div>
+
+                <!-- Info Alert -->
+                <div class="alert alert-info bg-info bg-opacity-10 text-info border border-info border-opacity-25 rounded-3 d-flex align-items-start gap-3 p-3 mb-4" role="alert">
+                    <i class="bi bi-info-circle-fill fs-5 mt-0.5"></i>
+                    <div>
+                        <strong>Lưu ý:</strong> Sau khi hoàn thành đặt vé, vé sẽ được lưu vào lịch sử giao dịch. Bạn có thể xuất mã QR Code hóa đơn để quét lấy vé cứng trực tiếp tại quầy của rạp chiếu phim.
+                    </div>
+                </div>
+
+                <!-- Actions -->
+                <div class="text-center border-top border-secondary border-opacity-10 pt-4 mt-4">
+                    <div class="d-flex flex-column flex-sm-row justify-content-center gap-3">
+                        <button type="submit" class="btn btn-primary rounded-pill px-5 py-2.5 shadow-lg fw-bold">
+                            <i class="bi bi-check-circle-fill me-2"></i> Xác nhận đặt vé
+                        </button>
+                        <a th:href="@{/customer/booking/seats/{id}(id=${showtime.id})}" class="btn btn-outline-secondary rounded-pill px-4 py-2.5">
+                            Quay lại chọn ghế
+                        </a>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <footer th:replace="~{fragments/common :: footer}"></footer>
+    <div th:replace="~{fragments/common :: scripts}"></div>
+
+    <!-- Script countdown -->
+    <script th:inline="javascript">
+        /*<![CDATA[*/
+        const expiryTimeStr = /*[[${expiryTime}]]*/ '';
+        const expiryDate = new Date(expiryTimeStr);
+
+        function updateCountdown() {
+            const now = new Date();
+            const diff = expiryDate - now;
+            if (diff <= 0) {
+                document.getElementById('timer').innerHTML = "HẾT GIỜ!";
+                alert("Thời gian giữ ghế của bạn đã hết. Vui lòng thực hiện đặt vé lại.");
+                window.location.href = "/customer/booking/seats/" + /*[[${showtime.id}]]*/ '';
+                return;
+            }
+            const minutes = Math.floor(diff / 60000);
+            const seconds = Math.floor((diff % 60000) / 1000);
+            document.getElementById('timer').innerHTML = 
+                (minutes < 10 ? '0' : '') + minutes + ':' + (seconds < 10 ? '0' : '') + seconds;
+        }
+        setInterval(updateCountdown, 1000);
+        updateCountdown();
+        /*]]>*/
+    </script>
+</body>
+</html>

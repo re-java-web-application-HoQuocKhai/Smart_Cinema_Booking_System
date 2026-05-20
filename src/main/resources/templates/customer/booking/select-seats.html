@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/common :: head('Smart Cinema - Chọn Ghế Ngồi')}"></head>
+<body class="bg-dark-gradient">
+    <nav th:replace="~{fragments/common :: navbar}"></nav>
+
+    <div class="container py-5">
+        <div class="card bg-dark-card rounded-4 shadow-lg p-4 p-md-5 border border-secondary border-opacity-10">
+            <!-- Header section -->
+            <div class="d-flex flex-wrap justify-content-between align-items-center border-bottom border-secondary border-opacity-10 pb-3 mb-4">
+                <div>
+                    <h2 class="text-white fw-bold mb-1" th:text="${showtime.movie.title}">Tên phim</h2>
+                    <p class="text-white-50 mb-0 small">
+                        <i class="bi bi-building me-1"></i> <span th:text="${showtime.room.cinema.name}">Rạp</span> 
+                        &bull; 
+                        <span th:text="${showtime.room.name + ' (' + showtime.room.roomType + ')'}">Phòng 1</span>
+                    </p>
+                </div>
+                <div class="text-end">
+                    <strong class="text-gradient fs-4 fw-bold" th:text="${#temporals.format(showtime.startTime, 'HH:mm dd/MM/yyyy')}">Giờ chiếu</strong>
+                    <div class="text-white-50 small">Chọn tối đa ghế phù hợp</div>
+                </div>
+            </div>
+
+            <!-- Alerts -->
+            <div th:if="${error}" class="alert alert-danger alert-dismissible fade show bg-danger bg-opacity-10 text-danger border border-danger border-opacity-25 rounded-3 mb-4" role="alert">
+                <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                <span th:text="${error}"></span>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+            <div th:if="${isSoldOut}" class="alert alert-danger bg-danger bg-opacity-10 text-danger border border-danger border-opacity-25 rounded-3 text-center fw-bold fs-6 py-3 mb-4">
+                <i class="bi bi-exclamation-triangle-fill me-2"></i> Suất chiếu này đã HẾT VÉ. Bạn chỉ có thể xem sơ đồ phòng chiếu.
+            </div>
+
+            <!-- Screen UI -->
+            <div class="screen-container">
+                <div class="screen"></div>
+                <div class="screen-label">Màn hình chiếu</div>
+            </div>
+
+            <!-- Seat Selection Form -->
+            <form th:action="@{/customer/booking/hold}" method="post">
+                <input type="hidden" name="showtimeId" th:value="${showtime.id}">
+
+
+
+                <div class="seat-grid-container text-center">
+                    <div class="seat-grid">
+                        <!-- Iterate rows -->
+                        <div class="seat-row" th:each="rowEntry : ${seatsByRow}">
+                            <span class="row-label" th:text="${rowEntry.key}">A</span>
+                            
+                            <!-- Iterate seats in row -->
+                            <th:block th:each="seat : ${rowEntry.value}">
+                                <!-- Determine seat status classes -->
+                                <label class="seat-item" 
+                                       th:classappend="${bookedSeatIds.contains(seat.id)} ? 'booked' : (
+                                                       ${activeHolds.containsKey(seat.id)} ? (
+                                                           ${activeHolds.get(seat.id).user.id.equals(currentUserId)} ? 'held-me' : 'held-others'
+                                                        ) : ${seat.seatType.code})">
+                                    
+                                    <input type="checkbox" name="seatIds" th:value="${seat.id}"
+                                           th:disabled="${isSoldOut} or ${bookedSeatIds.contains(seat.id)} or (${activeHolds.containsKey(seat.id)} and ${!activeHolds.get(seat.id).user.id.equals(currentUserId)})"
+                                           th:checked="${activeHolds.containsKey(seat.id)} and ${activeHolds.get(seat.id).user.id.equals(currentUserId)}">
+                                           
+                                    <span class="seat-box" 
+                                          th:text="${seat.seatLabel}" 
+                                          th:title="${seat.seatLabel} + ' (' + ${seat.seatType.name} + ')'">A1</span>
+                                </label>
+                            </th:block>
+                            
+                            <span class="row-label" th:text="${rowEntry.key}">A</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Legend -->
+                <div class="legend-container border-top border-secondary border-opacity-10 pt-4 mt-4">
+                    <div class="legend-item">
+                        <div class="legend-box" style="background-color: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.15);"></div>
+                        <span>Ghế thường</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-box" style="background-color: rgba(255,184,28,0.06); border: 2px solid #ffb81c;"></div>
+                        <span>Ghế VIP</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-box" style="background-color: rgba(255,71,87,0.06); border: 2px solid #ff4757; width: 36px;"></div>
+                        <span>Ghế Đôi (Couple)</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-box" style="background-color: #00f0ff; border: 1px solid #00f0ff; box-shadow: 0 0 5px #00f0ff;"></div>
+                        <span>Ghế bạn chọn</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-box" style="background-color: rgba(255,159,67,0.12); border: 2px solid #ff9f43;"></div>
+                        <span>Đang giữ (người khác)</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-box" style="background-color: rgba(255,255,255,0.15); border: 1px dashed rgba(255,255,255,0.15); text-decoration: line-through;"></div>
+                        <span>Đã bán</span>
+                    </div>
+                </div>
+
+                <!-- Action Button -->
+                <div class="text-center mt-5 pt-4 border-top border-secondary border-opacity-10">
+                    <div class="d-flex flex-column flex-sm-row justify-content-center gap-3">
+                        <button th:if="${!isSoldOut}" type="submit" class="btn btn-primary rounded-pill px-5 py-2.5 fs-5 shadow-lg">
+                            <i class="bi bi-cart-check-fill me-2"></i> Tiến hành thanh toán
+                        </button>
+                        <a th:href="@{/customer/booking}" class="btn btn-outline-secondary rounded-pill px-5 py-2.5 fs-5">
+                            Quay lại
+                        </a>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <footer th:replace="~{fragments/common :: footer}"></footer>
+    <div th:replace="~{fragments/common :: scripts}"></div>
+</body>
+</html>

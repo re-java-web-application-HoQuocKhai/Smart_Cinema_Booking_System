@@ -1,0 +1,576 @@
+/* Smart Cinema Booking System - Premium Glassmorphism & Cyberpunk Style */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap');
+
+:root {
+    /* Palette & Color Tokens (HSL Tailored) */
+    --bg-primary: #07080c;
+    --bg-secondary: #0d0f17;
+    --bg-card: rgba(22, 26, 43, 0.65);
+    
+    --accent-primary: #ff007f;    /* Neon Cyber Pink/Magenta */
+    --accent-secondary: #00f0ff;  /* Neon Electric Cyan */
+    --accent-glow: rgba(0, 240, 255, 0.4);
+    
+    --text-primary: #ffffff;
+    --text-muted: #8e9cae;
+    --text-dark: #07080c;
+    
+    --border-color: rgba(255, 255, 255, 0.08);
+    --border-glow: rgba(0, 240, 255, 0.15);
+    
+    --gold: #ffb81c;    /* VIP Seat Accent */
+    --crimson: #ff4757; /* Couple Seat Accent */
+    --orange: #ff9f43;  /* Held Seat Accent */
+    --success-color: #2ed573;
+}
+
+/* Global Reset & Core Styles */
+body {
+    background-color: var(--bg-primary);
+    background-image: 
+        radial-gradient(circle at 10% 20%, rgba(255, 0, 127, 0.05) 0%, transparent 40%),
+        radial-gradient(circle at 90% 80%, rgba(0, 240, 255, 0.05) 0%, transparent 40%);
+    background-attachment: fixed;
+    color: var(--text-primary);
+    font-family: 'Inter', sans-serif;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    overflow-x: hidden;
+}
+
+h1, h2, h3, h4, h5, h6, .navbar-brand {
+    font-family: 'Outfit', sans-serif;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+}
+
+/* Premium Glassmorphism Panels */
+.glass-panel, .bg-dark-card {
+    background: var(--bg-card) !important;
+    backdrop-filter: blur(16px) !important;
+    -webkit-backdrop-filter: blur(16px) !important;
+    border: 1px solid var(--border-color) !important;
+    border-radius: 16px;
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3) !important;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+/* Cards - only top-level cards, NOT child elements */
+.card {
+    background: var(--bg-card) !important;
+    border: 1px solid var(--border-color) !important;
+    border-radius: 16px;
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3) !important;
+}
+
+.card-header {
+    background-color: transparent !important;
+    border-bottom-color: rgba(255, 255, 255, 0.08) !important;
+}
+
+.card-body, .card-footer {
+    background-color: transparent !important;
+}
+
+/* Gradient Elements */
+.text-gradient {
+    background: linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-secondary) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    font-weight: 800;
+}
+
+.bg-dark-gradient {
+    background: linear-gradient(180deg, #050608 0%, #0d0f17 100%) !important;
+}
+
+/* Premium Glass Buttons */
+.btn-primary {
+    background: linear-gradient(135deg, var(--accent-primary) 0%, #d8006b 100%) !important;
+    border: none !important;
+    color: white !important;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    box-shadow: 0 4px 15px rgba(255, 0, 127, 0.3) !important;
+    transition: all 0.3s cubic-bezier(0.165, 0.84, 0.44, 1) !important;
+    border-radius: 50px;
+}
+
+.btn-primary:hover {
+    background: linear-gradient(135deg, #ff3399 0%, var(--accent-primary) 100%) !important;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(255, 0, 127, 0.55) !important;
+}
+
+.btn-outline-primary {
+    border: 2px solid var(--accent-secondary) !important;
+    color: var(--accent-secondary) !important;
+    background: transparent !important;
+    font-weight: 600;
+    transition: all 0.3s cubic-bezier(0.165, 0.84, 0.44, 1) !important;
+    border-radius: 50px;
+}
+
+.btn-outline-primary:hover {
+    background-color: var(--accent-secondary) !important;
+    color: var(--bg-primary) !important;
+    box-shadow: 0 0 20px rgba(0, 240, 255, 0.55) !important;
+    transform: translateY(-2px);
+}
+
+.btn-outline-secondary {
+    border: 1px solid rgba(255, 255, 255, 0.15) !important;
+    color: var(--text-muted) !important;
+    background: rgba(255, 255, 255, 0.03) !important;
+    transition: all 0.3s ease !important;
+    border-radius: 50px;
+}
+
+.btn-outline-secondary:hover {
+    background-color: rgba(255, 255, 255, 0.08) !important;
+    color: white !important;
+    border-color: rgba(255, 255, 255, 0.3) !important;
+}
+
+/* Movie Cards Showcase */
+.movie-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 16px;
+    overflow: hidden;
+    transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4);
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+}
+
+.movie-card:hover, .movie-card-hover:hover {
+    transform: translateY(-6px) scale(1.005);
+    border-color: var(--border-glow) !important;
+    box-shadow: 0 15px 40px rgba(0, 240, 255, 0.18) !important;
+}
+
+.movie-poster-container {
+    position: relative;
+    padding-top: 145%; /* Aesthetic poster ratio */
+    overflow: hidden;
+    background-color: #050608;
+}
+
+.movie-poster {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.6s ease;
+}
+
+.movie-card:hover .movie-poster {
+    transform: scale(1.04);
+}
+
+.movie-card-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(0deg, rgba(7, 8, 12, 0.95) 0%, rgba(7, 8, 12, 0.3) 50%, transparent 100%);
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    padding: 20px;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.movie-card:hover .movie-card-overlay {
+    opacity: 1;
+}
+
+.movie-info {
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+}
+
+.movie-title {
+    font-size: 1.2rem;
+    font-weight: 700;
+    margin-bottom: 8px;
+    color: var(--text-primary);
+    line-height: 1.3;
+}
+
+/* 3D Seat Selection Map Engine */
+.screen-container {
+    perspective: 1000px;
+    margin: 40px auto 30px auto;
+    text-align: center;
+    width: 80%;
+}
+
+.screen {
+    background: linear-gradient(180deg, var(--accent-secondary) 0%, rgba(0, 240, 255, 0) 100%);
+    height: 10px;
+    border-radius: 50% / 100% 100% 0 0;
+    box-shadow: 0 12px 35px rgba(0, 240, 255, 0.45);
+    transform: rotateX(-15deg);
+    margin-bottom: 15px;
+}
+
+.screen-label {
+    font-size: 12px;
+    color: var(--text-muted);
+    letter-spacing: 0.35em;
+    text-transform: uppercase;
+    font-family: 'Outfit', sans-serif;
+    font-weight: 600;
+}
+
+/* Seat Grid Container & Items */
+.seat-grid-container {
+    width: 100%;
+    overflow-x: auto;
+    padding: 20px 0;
+}
+
+.seat-grid {
+    margin: 20px auto;
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    min-width: 100%;
+}
+
+.seat-row {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.row-label, .seat-row-label {
+    font-weight: 700;
+    width: 30px;
+    text-align: center;
+    color: rgba(255, 255, 255, 0.3);
+    font-family: 'Outfit', sans-serif;
+    font-size: 13px;
+}
+
+.seat-item {
+    position: relative;
+    display: inline-block;
+    cursor: pointer;
+    width: 36px;
+    height: 36px;
+    user-select: none;
+}
+
+.seat-item input {
+    position: absolute;
+    opacity: 0;
+    cursor: pointer;
+    height: 0;
+    width: 0;
+    appearance: none;
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+.seat-box {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(255, 255, 255, 0.05);
+    color: rgba(255, 255, 255, 0.7);
+    border-radius: 8px;
+    font-size: 11px;
+    font-weight: 700;
+    transition: all 0.25s cubic-bezier(0.165, 0.84, 0.44, 1);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+/* Seat States Styling */
+.seat-available:hover {
+    background-color: var(--accent-secondary);
+    color: var(--bg-primary);
+    border-color: var(--accent-secondary);
+    box-shadow: 0 0 12px var(--accent-secondary);
+    transform: scale(1.1);
+}
+
+.seat-selected, .seat-item input:checked ~ .seat-box {
+    background-color: var(--accent-secondary) !important;
+    color: var(--bg-primary) !important;
+    border-color: var(--accent-secondary) !important;
+    box-shadow: 0 0 18px rgba(0, 240, 255, 0.8) !important;
+    transform: scale(1.08);
+}
+
+/* VIP seat border */
+.seat-item.VIP .seat-box {
+    border: 2px solid var(--gold);
+    background-color: rgba(255, 184, 28, 0.08);
+    color: var(--gold);
+}
+
+/* Couple seat double-wide */
+.seat-item.COUPLE {
+    width: 76px;
+}
+
+.seat-item.COUPLE .seat-box {
+    border: 2px solid var(--crimson);
+    background-color: rgba(255, 71, 87, 0.08);
+    color: var(--crimson);
+}
+
+/* Normal seat explicit fallback */
+.seat-item.NORMAL .seat-box {
+    background-color: rgba(255, 255, 255, 0.05);
+    color: rgba(255, 255, 255, 0.7);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+/* Booked & Reserved seat */
+.seat-item.booked .seat-box, .seat-reserved, .seat-item.booked:hover .seat-box {
+    background-color: rgba(255, 255, 255, 0.12) !important;
+    color: rgba(255, 255, 255, 0.18) !important;
+    border: 1px dashed rgba(255, 255, 255, 0.15) !important;
+    cursor: not-allowed !important;
+    transform: none !important;
+    box-shadow: none !important;
+    text-decoration: line-through;
+}
+
+/* Held by someone else */
+.seat-item.held-others .seat-box {
+    background-color: rgba(255, 159, 67, 0.12) !important;
+    color: var(--orange) !important;
+    border: 2px solid var(--orange) !important;
+    cursor: not-allowed;
+}
+
+/* Legend items */
+.legend-container, .seat-legend {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    margin: 25px 0;
+    flex-wrap: wrap;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    color: var(--text-muted);
+}
+
+.legend-box {
+    width: 18px;
+    height: 18px;
+    border-radius: 4px;
+}
+
+/* Invoice Receipts & Dashed Rows */
+.dashed-row, .dashed-border-row {
+    border-bottom: 1px dashed rgba(255, 255, 255, 0.1) !important;
+    padding-bottom: 10px;
+    margin-bottom: 10px;
+}
+
+.dashed-row:last-child, .dashed-border-row:last-child {
+    border-bottom: none !important;
+}
+
+/* Tables Styling - Forced Transparent for Dark Theme */
+.table {
+    --bs-table-bg: transparent !important;
+    --bs-table-striped-bg: transparent !important;
+    --bs-table-hover-bg: rgba(255, 255, 255, 0.04) !important;
+    --bs-table-active-bg: rgba(255, 255, 255, 0.04) !important;
+    --bs-table-color: #ffffff !important;
+    --bs-table-hover-color: #ffffff !important;
+    --bs-table-border-color: rgba(255, 255, 255, 0.06) !important;
+    color: #ffffff !important;
+    background-color: transparent !important;
+}
+
+.table > :not(caption) > * > * {
+    background-color: transparent !important;
+    color: inherit !important;
+    border-bottom-color: rgba(255, 255, 255, 0.06) !important;
+    box-shadow: none !important;
+}
+
+.table > thead {
+    color: var(--text-muted) !important;
+}
+
+.table > thead > tr > th {
+    background-color: rgba(0, 0, 0, 0.3) !important;
+    color: var(--text-muted) !important;
+}
+
+.table > tbody > tr > td {
+    background-color: transparent !important;
+}
+
+.table-hover > tbody > tr:hover > * {
+    background-color: rgba(255, 255, 255, 0.04) !important;
+    color: #ffffff !important;
+}
+
+/* Ensure text colors override for specific table cells */
+.table .text-white { color: #ffffff !important; }
+.table .text-white-50 { color: rgba(255, 255, 255, 0.5) !important; }
+.table .fw-bold { color: #ffffff; }
+.table .text-gradient {
+    background: linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-secondary) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+/* Form Validations, Controls & Autofill Fixes */
+input:-webkit-autofill,
+input:-webkit-autofill:hover, 
+input:-webkit-autofill:focus, 
+input:-webkit-autofill:active {
+    -webkit-box-shadow: 0 0 0 30px #161a2b inset !important;
+    -webkit-text-fill-color: white !important;
+    transition: background-color 5000s ease-in-out 0s;
+}
+
+.form-floating > .form-control:focus ~ label,
+.form-floating > .form-control:not(:placeholder-shown) ~ label,
+.form-floating > .form-select ~ label {
+    color: rgba(255,255,255,0.7) !important;
+    background-color: transparent !important;
+}
+
+.form-floating > .form-control:focus ~ label::after,
+.form-floating > .form-control:not(:placeholder-shown) ~ label::after,
+.form-floating > .form-select ~ label::after {
+    background-color: #161a2b !important;
+    border-radius: 4px;
+}
+
+.form-floating > label {
+    color: rgba(255, 255, 255, 0.5) !important;
+}
+
+.form-control, .form-select {
+    background-color: rgba(7, 8, 12, 0.6) !important;
+    border: 1px solid rgba(255, 255, 255, 0.12) !important;
+    color: #ffffff !important;
+    border-radius: 10px;
+    transition: all 0.3s ease;
+}
+
+.form-control:focus, .form-select:focus {
+    border-color: var(--accent-secondary) !important;
+    box-shadow: 0 0 10px rgba(0, 240, 255, 0.25) !important;
+    background-color: rgba(7, 8, 12, 0.8) !important;
+}
+
+.form-control::placeholder {
+    color: rgba(255, 255, 255, 0.35) !important;
+}
+
+/* Input group addon styling */
+.input-group-text {
+    background-color: rgba(7, 8, 12, 0.4) !important;
+    border-color: rgba(255, 255, 255, 0.12) !important;
+    color: rgba(255, 255, 255, 0.5) !important;
+}
+
+/* Form labels */
+.form-label {
+    color: rgba(255, 255, 255, 0.9) !important;
+}
+
+/* Select option backgrounds (for dropdown items) */
+.form-select option {
+    background-color: #161a2b !important;
+    color: #ffffff !important;
+}
+
+.invalid-feedback {
+    display: block;
+    color: #ef4444;
+    font-size: 0.85em;
+    margin-top: 5px;
+}
+
+/* Badge fixes - ensure text visibility */
+.badge.bg-info {
+    background-color: rgba(13, 202, 240, 0.2) !important;
+    color: #0dcaf0 !important;
+    border: 1px solid rgba(13, 202, 240, 0.3) !important;
+}
+
+.badge.bg-info.text-dark {
+    background-color: rgba(13, 202, 240, 0.15) !important;
+    color: #0dcaf0 !important;
+}
+
+/* Alert backgrounds */
+.alert {
+    border-radius: 12px;
+}
+
+/* Modal dark theme fix */
+.modal-content {
+    background-color: #161a2b !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    color: #ffffff !important;
+}
+
+/* Animations */
+.animate-pulse {
+    animation: pulse-glow 2s infinite;
+}
+
+@keyframes pulse-glow {
+    0% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.03); opacity: 0.85; }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+/* Custom Premium Scrollbar */
+::-webkit-scrollbar {
+    width: 8px;
+}
+::-webkit-scrollbar-track {
+    background: var(--bg-primary);
+}
+::-webkit-scrollbar-thumb {
+    background: #1b1e2c;
+    border-radius: 4px;
+    transition: background 0.3s;
+}
+::-webkit-scrollbar-thumb:hover {
+    background: var(--accent-primary);
+}
+
+/* Movie Details Backdrops */
+.movie-details-header {
+    background: linear-gradient(180deg, rgba(7, 8, 12, 0.4) 0%, var(--bg-primary) 100%), var(--backdrop-url);
+    background-size: cover;
+    background-position: center;
+    padding: 60px 0;
+}
+

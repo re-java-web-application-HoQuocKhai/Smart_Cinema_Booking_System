@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/common :: head('Smart Cinema - Từ chối truy cập')}"></head>
+<body class="bg-dark-gradient d-flex flex-column min-vh-100">
+    <nav th:replace="~{fragments/common :: navbar}"></nav>
+
+    <div class="container py-5 my-auto">
+        <div class="row justify-content-center">
+            <div class="col-md-6 col-lg-5 text-center">
+                <div class="card bg-dark-card rounded-4 p-4 p-md-5 shadow-lg border border-danger border-opacity-25">
+                    
+                    <!-- Shield Animated Icon -->
+                    <div class="text-danger display-1 mb-4 animate-pulse">
+                        <i class="bi bi-shield-slash-fill"></i>
+                    </div>
+
+                    <h2 class="text-danger fw-bold mb-3">403 - Từ chối truy cập</h2>
+                    
+                    <p class="text-white-50 mb-2">Bạn không có quyền hạn cần thiết để truy cập tài nguyên này.</p>
+                    <p class="text-white-50 mb-4">Vui lòng kiểm tra lại tài khoản hoặc liên hệ quản trị viên hệ thống nếu đây là sự cố nhầm lẫn.</p>
+                    
+                    <div class="d-grid gap-2">
+                        <a th:href="@{/home}" class="btn btn-primary rounded-pill py-2 fw-semibold">
+                            <i class="bi bi-house-door me-2"></i> Về trang chủ
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer th:replace="~{fragments/common :: footer}"></footer>
+    <div th:replace="~{fragments/common :: scripts}"></div>
+</body>
+</html>

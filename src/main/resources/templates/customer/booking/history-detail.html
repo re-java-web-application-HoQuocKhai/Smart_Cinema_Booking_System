@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/common :: head('Smart Cinema - Chi tiết đơn đặt vé')}"></head>
+<body class="bg-dark-gradient">
+    <nav th:replace="~{fragments/common :: navbar}"></nav>
+
+    <div class="container py-5" style="max-width: 750px;">
+        <div class="mb-4">
+            <a th:href="@{/customer/booking/history}" class="btn btn-outline-secondary btn-sm rounded-pill px-3">
+                <i class="bi bi-arrow-left me-1"></i> Quay lại lịch sử
+            </a>
+        </div>
+
+        <div class="card bg-dark-card rounded-4 shadow-lg p-4 p-md-5 border border-secondary border-opacity-10"
+             th:styleappend="'border-top: 6px solid ' + (${booking.status.name() == 'CONFIRMED'} ? '#2ed573' : (${booking.status.name() == 'CANCELLED'} ? '#ef4444' : '#ffb81c')) + ' !important;'">
+            
+            <!-- Status Header -->
+            <div class="text-center mb-4 pb-3 border-bottom border-secondary border-opacity-10">
+                <div class="d-inline-flex align-items-center justify-content-center bg-opacity-10 rounded-circle mb-3"
+                     th:classappend="${booking.status.name() == 'CONFIRMED'} ? 'bg-success text-success' : (${booking.status.name() == 'CANCELLED'} ? 'bg-danger text-danger' : 'bg-warning text-warning')"
+                     style="width: 70px; height: 70px;">
+                    <i class="bi" th:classappend="${booking.status.name() == 'CONFIRMED'} ? 'bi-check-circle-fill' : (${booking.status.name() == 'CANCELLED'} ? 'bi-x-circle-fill' : 'bi-exclamation-circle-fill')" style="font-size: 2.5rem;"></i>
+                </div>
+                
+                <h2 class="fw-bold mb-1"
+                    th:classappend="${booking.status.name() == 'CONFIRMED'} ? 'text-success' : (${booking.status.name() == 'CANCELLED'} ? 'text-danger' : 'text-warning')"
+                    th:text="${booking.status.name() == 'CONFIRMED'} ? 'Đặt vé thành công' : (${booking.status.name() == 'CANCELLED'} ? 'Đã hủy đơn hàng' : 'Đơn đặt vé')">Trạng Thái</h2>
+                <p class="text-white-50 font-monospace mb-0" th:text="'Mã đặt vé: ' + ${booking.bookingCode}">Mã đơn</p>
+            </div>
+
+            <!-- Booking details snapshot -->
+            <div class="p-4 bg-black bg-opacity-20 rounded-3 border border-secondary border-opacity-10 mb-4">
+
+
+                <div class="d-flex justify-content-between py-2.5 dashed-row align-items-center">
+                    <span class="text-white-50 small">Tên phim:</span>
+                    <strong class="text-white" th:text="${booking.tickets[0].movieTitleSnapshot}">Tên phim</strong>
+                </div>
+                <div class="d-flex justify-content-between py-2.5 dashed-row align-items-center">
+                    <span class="text-white-50 small">Rạp & Phòng chiếu:</span>
+                    <span class="text-white fw-semibold" th:text="${booking.tickets[0].cinemaNameSnapshot} + ' - ' + ${booking.tickets[0].roomNameSnapshot}">Cinema Room</span>
+                </div>
+                <div class="d-flex justify-content-between py-2.5 dashed-row align-items-center">
+                    <span class="text-white-50 small">Suất chiếu:</span>
+                    <span class="text-white" th:text="${#temporals.format(booking.tickets[0].showtimeSnapshot, 'HH:mm dd/MM/yyyy')}">HH:mm</span>
+                </div>
+                <div class="d-flex justify-content-between py-2.5 dashed-row align-items-center">
+                    <span class="text-white-50 small">Thời gian đặt vé:</span>
+                    <span class="text-white-50" th:text="${#temporals.format(booking.createdAt, 'HH:mm:ss dd/MM/yyyy')}">CreatedAt</span>
+                </div>
+                <div th:if="${booking.cancelledAt != null}" class="d-flex justify-content-between py-2.5 dashed-row align-items-center">
+                    <span class="text-white-50 small">Thời gian hủy vé:</span>
+                    <strong class="text-danger" th:text="${#temporals.format(booking.cancelledAt, 'HH:mm:ss dd/MM/yyyy')}">CancelledAt</strong>
+                </div>
+                <div class="d-flex justify-content-between py-2.5 dashed-row align-items-center">
+                    <span class="text-white-50 small">Phương thức thanh toán:</span>
+                    <span class="text-white-50" th:text="${booking.paymentMethod == T(com.re.smart_cinema_booking_system.enums.PaymentMethod).CASH ? 'Tiền mặt tại quầy' : 'Chuyển khoản'}">CASH</span>
+                </div>
+                <div class="d-flex justify-content-between py-2.5 dashed-row align-items-center">
+                    <span class="text-white-50 small">Trạng thái giao dịch:</span>
+                    <span class="badge rounded-pill px-3 py-1.5"
+                          th:classappend="${booking.status.name() == 'CONFIRMED'} ? 'bg-success' : (${booking.status.name() == 'CANCELLED'} ? 'bg-danger' : 'bg-warning text-dark')"
+                          th:text="${booking.status.name() == 'CONFIRMED'} ? 'Thành công' : (${booking.status.name() == 'CANCELLED'} ? 'Đã hủy / Hoàn tiền' : 'Chờ thanh toán')">STATUS</span>
+                </div>
+                <div class="d-flex justify-content-between py-3 border-top border-secondary border-opacity-20 mt-2 align-items-center">
+                    <span class="text-white fw-bold">Tổng thanh toán:</span>
+                    <strong class="text-gradient fs-4 fw-bold" th:text="${#numbers.formatInteger(booking.totalAmount.intValue(), 3, 'COMMA') + ' đ'}">150,000 đ</strong>
+                </div>
+            </div>
+
+            <!-- Seat List details -->
+            <h4 class="text-white fw-bold mt-4 mb-3 border-bottom border-secondary border-opacity-10 pb-2">
+                <i class="bi bi-ticket-perforated me-1 text-primary"></i> Chi tiết danh sách ghế
+            </h4>
+            <div class="table-responsive mb-4">
+                <table class="table table-hover align-middle text-white border-secondary border-opacity-10">
+                    <thead class="bg-black bg-opacity-20 small text-white-50">
+                        <tr>
+                            <th class="ps-3 py-2.5">Ghế</th>
+                            <th class="py-2.5">Loại ghế</th>
+                            <th class="py-2.5 text-end">Giá vé</th>
+                            <th class="py-2.5 text-center pe-3">Trạng thái vé</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="t : ${booking.tickets}">
+                            <td class="ps-3 fw-bold text-white" th:text="${t.seatLabelSnapshot}">A1</td>
+                            <td class="text-white-50" th:text="${t.seatTypeSnapshot}">Thường</td>
+                            <td class="text-end fw-semibold text-white" th:text="${#numbers.formatInteger(t.unitPriceSnapshot.intValue(), 3, 'COMMA') + ' đ'}">75,000 đ</td>
+                            <td class="text-center pe-3">
+                                <span class="badge rounded-pill px-2.5 py-1"
+                                      th:classappend="${t.ticketStatus.name() == 'BOOKED'} ? 'bg-success' : (${t.ticketStatus.name() == 'CANCELLED'} ? 'bg-danger' : 'bg-info')"
+                                      th:switch="${t.ticketStatus.name()}">
+                                    <span th:case="'BOOKED'">Còn hiệu lực</span>
+                                    <span th:case="'CANCELLED'">Đã hủy</span>
+                                    <span th:case="'USED'">Đã sử dụng</span>
+                                </span>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Cancel booking form if allowed -->
+            <div th:if="${canCancel}" class="alert alert-danger bg-danger bg-opacity-10 text-danger border border-danger border-opacity-25 rounded-4 p-4 mb-4" role="alert">
+                <h5 class="fw-bold text-danger mb-2"><i class="bi bi-exclamation-circle-fill me-1"></i> Hủy đặt vé chủ động</h5>
+                <p class="small text-white-50 mb-3">
+                    Bạn được phép hủy đơn hàng này do thời gian cách giờ chiếu còn nhiều hơn 24 giờ. Hệ thống sẽ giải phóng ghế của bạn ngay lập tức.
+                </p>
+                <button type="button" class="btn btn-danger rounded-pill px-4"
+                        data-bs-toggle="modal" data-bs-target="#cancelConfirmModal"
+                        th:data-action="@{/customer/booking/cancel}"
+                        th:data-message="'Bạn có chắc chắn muốn hủy đơn đặt vé ' + ${booking.bookingCode} + '? Toàn bộ ghế sẽ được giải phóng ngay lập tức.'">
+                    Hủy đặt vé này
+                </button>
+            </div>
+
+            <!-- Booking confirmed but CANNOT cancel -->
+            <div th:if="${booking.status.name() == 'CONFIRMED' and !canCancel}" class="alert alert-secondary bg-secondary bg-opacity-10 text-white-50 border border-secondary border-opacity-25 rounded-4 p-3 mb-4 small">
+                <i class="bi bi-info-circle-fill text-white-50 me-1"></i> 
+                <strong>Lưu ý:</strong> Đơn hàng này không thể tự động hủy trực tuyến do suất chiếu sẽ diễn ra trong vòng 24 giờ tới (hoặc suất chiếu đã bắt đầu). Vui lòng liên hệ quầy chăm sóc khách hàng trực tiếp nếu cần hỗ trợ.
+            </div>
+        </div>
+    </div>
+
+    <!-- Reusable Cancel Booking Modal Fragment -->
+    <div th:replace="~{fragments/common :: cancel-modal}"></div>
+
+    <footer th:replace="~{fragments/common :: footer}"></footer>
+    <div th:replace="~{fragments/common :: scripts}"></div>
+</body>
+</html>
