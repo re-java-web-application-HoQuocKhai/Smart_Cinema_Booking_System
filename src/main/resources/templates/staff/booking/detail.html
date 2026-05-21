@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/common :: head('Chi tiết đơn hàng - Staff')}"></head>
+<body class="bg-dark-gradient d-flex flex-column min-vh-100">
+    <nav th:replace="~{fragments/common :: navbar}"></nav>
+
+    <div class="container py-5">
+        <div class="d-flex align-items-center justify-content-between mb-4">
+            <div>
+                <h2 class="fw-bold text-white mb-1">
+                    <i class="bi bi-ticket-detailed text-gradient me-2"></i>Chi tiết Đơn hàng
+                </h2>
+                <p class="text-white-50 mb-0">Mã đơn: <strong class="text-white font-monospace" th:text="${booking.bookingCode}"></strong></p>
+            </div>
+            <a th:href="@{/staff/booking}" class="btn btn-outline-secondary rounded-pill px-4">
+                <i class="bi bi-arrow-left me-2"></i>Quay lại
+            </a>
+        </div>
+
+        <div th:if="${success}" class="alert alert-success bg-success bg-opacity-10 border-success border-opacity-25 text-success rounded-3 p-3 mb-4 d-flex align-items-center">
+            <i class="bi bi-check-circle-fill fs-5 me-3"></i>
+            <span th:text="${success}"></span>
+        </div>
+        
+        <div th:if="${error}" class="alert alert-danger bg-danger bg-opacity-10 border-danger border-opacity-25 text-danger rounded-3 p-3 mb-4 d-flex align-items-center">
+            <i class="bi bi-exclamation-triangle-fill fs-5 me-3"></i>
+            <span th:text="${error}"></span>
+        </div>
+
+        <div class="row g-4">
+            <div class="col-lg-8">
+                <!-- Movie & Showtime Info -->
+                <div class="card bg-dark-card border border-secondary border-opacity-10 rounded-4 shadow mb-4">
+                    <div class="card-body p-4">
+                        <div class="d-flex align-items-center mb-4">
+                            <div class="flex-shrink-0 bg-primary bg-opacity-10 p-3 rounded-3 text-primary me-4">
+                                <i class="bi bi-film fs-3"></i>
+                            </div>
+                            <div>
+                                <h4 class="text-white fw-bold mb-1" th:text="${booking.tickets[0].movieTitleSnapshot}">Movie Title</h4>
+                                <div class="text-white-50">
+                                    <span th:text="${booking.tickets[0].cinemaNameSnapshot}">Cinema</span> &bull; 
+                                    <span class="text-white" th:text="${booking.tickets[0].roomNameSnapshot}">Room</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row g-3">
+                            <div class="col-sm-6">
+                                <div class="bg-dark p-3 rounded-3 border border-secondary border-opacity-10">
+                                    <div class="text-white-50 small mb-1">Giờ chiếu</div>
+                                    <div class="text-white fw-semibold fs-5" th:text="${#temporals.format(booking.tickets[0].showtimeSnapshot, 'HH:mm - dd/MM/yyyy')}">10:00 - 21/05/2026</div>
+                                </div>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="bg-dark p-3 rounded-3 border border-secondary border-opacity-10">
+                                    <div class="text-white-50 small mb-1">Số lượng vé</div>
+                                    <div class="text-white fw-semibold fs-5" th:text="${booking.tickets.size()} + ' vé'">2 vé</div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mt-4 border-top border-secondary border-opacity-10 pt-4">
+                            <h6 class="text-white-50 mb-3">Danh sách Ghế</h6>
+                            <div class="d-flex flex-wrap gap-2">
+                                <span th:each="ticket : ${booking.tickets}" 
+                                      class="badge bg-secondary bg-opacity-25 border border-secondary border-opacity-25 text-white px-3 py-2 fs-6 rounded-3">
+                                    Ghế <span th:text="${ticket.seatLabelSnapshot}">A1</span>
+                                    <small class="d-block text-white-50 mt-1" style="font-size: 0.7em;" th:text="${ticket.seatTypeSnapshot}">Thường</small>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-4">
+                <!-- Payment Summary & Actions -->
+                <div class="card bg-dark-card border border-secondary border-opacity-10 rounded-4 shadow position-sticky" style="top: 2rem;">
+                    <div class="card-body p-4">
+                        <h5 class="text-white fw-bold mb-4 border-bottom border-secondary border-opacity-10 pb-3">Thanh toán</h5>
+                        
+                        <div class="d-flex justify-content-between mb-3">
+                            <span class="text-white-50">Tổng tiền</span>
+                            <span class="text-white fw-semibold" th:text="${#numbers.formatDecimal(booking.totalAmount, 0, 'COMMA', 0, 'POINT')} + ' đ'">100,000 đ</span>
+                        </div>
+                        
+                        <div class="d-flex justify-content-between mb-3">
+                            <span class="text-white-50">Phương thức</span>
+                            <span class="badge bg-dark border border-secondary border-opacity-25 text-white" th:text="${booking.paymentMethod}">CASH</span>
+                        </div>
+                        
+                        <div class="d-flex justify-content-between mb-4">
+                            <span class="text-white-50">Trạng thái</span>
+                            <span th:if="${booking.status.name() == 'PENDING_PAYMENT'}" class="badge bg-warning text-dark px-3 py-2 rounded-pill">Chưa thanh toán</span>
+                            <span th:if="${booking.status.name() == 'CONFIRMED'}" class="badge bg-success text-white px-3 py-2 rounded-pill">Đã thanh toán</span>
+                            <span th:if="${booking.status.name() == 'CANCELLED'}" class="badge bg-danger text-white px-3 py-2 rounded-pill">Đã hủy</span>
+                        </div>
+                        
+                        <div class="border-top border-secondary border-opacity-10 pt-4">
+                            <!-- Action for Pending -->
+                            <div th:if="${booking.status.name() == 'PENDING_PAYMENT'}">
+                                <form th:action="@{/staff/booking/{code}/confirm(code=${booking.bookingCode})}" method="post">
+                                    <button type="submit" class="btn btn-warning w-100 rounded-pill py-3 fw-bold mb-2 shadow-lg"
+                                            onclick="return confirm('Bạn xác nhận đã thu tiền mặt của khách?');">
+                                        <i class="bi bi-cash-coin me-2"></i> XÁC NHẬN THANH TOÁN
+                                    </button>
+                                </form>
+                                <div class="text-center mt-3 text-white-50 small">
+                                    <i class="bi bi-info-circle me-1"></i> Sau khi thanh toán mới có thể in vé
+                                </div>
+                            </div>
+                            
+                            <!-- Action for Confirmed -->
+                            <div th:if="${booking.status.name() == 'CONFIRMED'}">
+                                <a th:href="@{/staff/booking/{code}/print(code=${booking.bookingCode})}" target="_blank" 
+                                   class="btn btn-primary w-100 rounded-pill py-3 fw-bold shadow-lg">
+                                    <i class="bi bi-printer me-2"></i> IN VÉ GIẤY
+                                </a>
+                                <div class="text-center mt-3 text-success small">
+                                    <i class="bi bi-check-circle me-1"></i> Đơn hàng đã sẵn sàng in
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer th:replace="~{fragments/common :: footer}"></footer>
+    <div th:replace="~{fragments/common :: scripts}"></div>
+</body>
+</html>

@@ -376,4 +376,46 @@ public class BookingService {
         int rand = new Random().nextInt(900) + 100; // 3 digit random
         return "BK" + dateStr + rand;
     }
+
+    @Transactional
+    public void confirmPaymentByStaff(String bookingCode, String staffEmail) {
+        Booking booking = bookingRepository.findByBookingCode(bookingCode)
+                .orElseThrow(() -> new BusinessException("Không tìm thấy thông tin đặt vé"));
+
+        if (booking.getStatus() != BookingStatus.PENDING_PAYMENT) {
+            throw new BusinessException("Đơn đặt vé không ở trạng thái chờ thanh toán");
+        }
+
+        booking.setStatus(BookingStatus.CONFIRMED);
+        booking.setPaymentStatus(PaymentStatus.SUCCESS);
+        booking.setPaidAt(LocalDateTime.now());
+
+        // Log payment transaction with staff email as cashier
+        PaymentTransaction tx = PaymentTransaction.builder()
+                .booking(booking)
+                .provider(null)
+                .transactionCode("CASH-" + bookingCode)
+                .requestPayload(String.format("{\"method\":\"CASH\",\"cashier\":\"%s\"}", staffEmail))
+                .responsePayload("{\"status\":\"SUCCESS\",\"message\":\"Xác nhận thanh toán tại quầy thành công\"}")
+                .status(PaymentStatus.SUCCESS)
+                .build();
+        paymentTransactionRepository.save(tx);
+    }
+
+    @Transactional
+    public void printTickets(String bookingCode) {
+        Booking booking = bookingRepository.findByBookingCode(bookingCode)
+                .orElseThrow(() -> new BusinessException("Không tìm thấy thông tin đặt vé"));
+
+        if (booking.getStatus() != BookingStatus.CONFIRMED) {
+            throw new BusinessException("Đơn đặt vé chưa được xác nhận thanh toán");
+        }
+
+        // Update all associated tickets status to USED
+        for (Ticket ticket : booking.getTickets()) {
+            if (ticket.getTicketStatus() == TicketStatus.BOOKED) {
+                ticket.setTicketStatus(TicketStatus.USED);
+            }
+        }
+    }
 }

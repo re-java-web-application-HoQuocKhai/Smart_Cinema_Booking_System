@@ -47,13 +47,20 @@
                         </span>
                     </div>
 
-                    <!-- Admin/Staff actions -->
+                    <!-- Admin actions -->
                     <div th:if="${session.currentUser.role.name() == 'ADMIN'}" class="d-flex flex-wrap justify-content-center gap-3">
                         <a th:href="@{/admin/movies}" class="btn btn-primary rounded-pill px-5 py-3 shadow-lg fw-semibold">
                             <i class="bi bi-film me-2"></i> Quản lý Phim
                         </a>
                         <a th:href="@{/admin/showtimes}" class="btn btn-outline-primary rounded-pill px-5 py-3 fw-semibold">
                             <i class="bi bi-calendar-event me-2"></i> Quản lý Suất chiếu
+                        </a>
+                    </div>
+
+                    <!-- Staff actions -->
+                    <div th:if="${session.currentUser.role.name() == 'STAFF'}" class="d-flex flex-wrap justify-content-center gap-3">
+                        <a th:href="@{/staff/booking}" class="btn btn-warning text-dark rounded-pill px-5 py-3 shadow-lg fw-semibold">
+                            <i class="bi bi-search me-2"></i> Tra cứu Đơn hàng & In vé
                         </a>
                     </div>
 

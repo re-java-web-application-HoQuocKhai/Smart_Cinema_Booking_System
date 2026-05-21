@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/common :: head('Tra cứu đơn hàng - Staff')}"></head>
+<body class="bg-dark-gradient d-flex flex-column min-vh-100">
+    <nav th:replace="~{fragments/common :: navbar}"></nav>
+
+    <div class="container py-5 my-auto">
+        <div class="row justify-content-center">
+            <div class="col-md-6">
+                <div class="card bg-dark-card border border-secondary border-opacity-10 shadow-lg rounded-4">
+                    <div class="card-body p-5">
+                        <div class="text-center mb-4">
+                            <i class="bi bi-search text-gradient display-4 mb-3 d-inline-block"></i>
+                            <h2 class="fw-bold text-white mb-2">Tra cứu mã đơn hàng</h2>
+                            <p class="text-white-50">Nhập mã đơn hàng để xác nhận thanh toán hoặc in vé</p>
+                        </div>
+
+                        <!-- Alert Error -->
+                        <div th:if="${error}" class="alert alert-danger bg-danger bg-opacity-10 border-danger border-opacity-25 text-danger rounded-3 p-3 mb-4 d-flex align-items-center">
+                            <i class="bi bi-exclamation-triangle-fill fs-5 me-3"></i>
+                            <span th:text="${error}"></span>
+                        </div>
+
+                        <form th:action="@{/staff/booking/search}" method="get">
+                            <div class="mb-4">
+                                <label for="bookingCode" class="form-label text-white-50 small text-uppercase fw-semibold tracking-wider">Mã đơn hàng</label>
+                                <div class="input-group input-group-lg bg-dark border border-secondary border-opacity-25 rounded-3 overflow-hidden">
+                                    <span class="input-group-text bg-transparent border-0 text-white-50 px-4">
+                                        <i class="bi bi-ticket-detailed"></i>
+                                    </span>
+                                    <input type="text" class="form-control bg-transparent border-0 text-white shadow-none placeholder-glow" 
+                                           id="bookingCode" name="bookingCode" placeholder="VD: BK20260521..." required autofocus
+                                           style="font-size: 1.1rem; letter-spacing: 1px;">
+                                </div>
+                            </div>
+                            
+                            <button type="submit" class="btn btn-primary btn-lg w-100 rounded-pill py-3 fw-bold tracking-wider">
+                                <i class="bi bi-search me-2"></i> TÌM KIẾM
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer th:replace="~{fragments/common :: footer}"></footer>
+    <div th:replace="~{fragments/common :: scripts}"></div>
+</body>
+</html>
