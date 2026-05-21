@@ -203,16 +203,20 @@ public class BookingService {
 
         // 5. Create Booking
         String bookingCode = generateBookingCode();
+        BookingStatus initialStatus = request.getPaymentMethod() == PaymentMethod.CASH ? BookingStatus.PENDING_PAYMENT : BookingStatus.CONFIRMED;
+        PaymentStatus initialPaymentStatus = request.getPaymentMethod() == PaymentMethod.CASH ? PaymentStatus.PENDING : PaymentStatus.SUCCESS;
+        LocalDateTime initialPaidAt = request.getPaymentMethod() == PaymentMethod.CASH ? null : now;
+
         Booking booking = Booking.builder()
                 .bookingCode(bookingCode)
                 .user(user)
-                .status(BookingStatus.CONFIRMED)
+                .status(initialStatus)
                 .subtotalAmount(BigDecimal.ZERO)
                 .discountAmount(BigDecimal.ZERO)
                 .totalAmount(BigDecimal.ZERO)
-                .paymentStatus(PaymentStatus.SUCCESS)
+                .paymentStatus(initialPaymentStatus)
                 .paymentMethod(request.getPaymentMethod())
-                .paidAt(now)
+                .paidAt(initialPaidAt)
                 .build();
 
         for (Seat seat : seats) {
@@ -249,16 +253,18 @@ public class BookingService {
         // 7. Save Booking (Cascade will save Tickets)
         bookingRepository.save(booking);
 
-        // 8. Create Payment Transaction Log (CASH / internal log)
-        PaymentTransaction tx = PaymentTransaction.builder()
-                .booking(booking)
-                .provider(null)
-                .transactionCode(request.getPaymentMethod() == PaymentMethod.CASH ? "CASH-" + bookingCode : "BANKING-" + bookingCode)
-                .requestPayload(String.format("{\"method\":\"%s\",\"amount\":%s}", request.getPaymentMethod(), totalAmount))
-                .responsePayload("{\"status\":\"SUCCESS\",\"message\":\"Giao dịch tiền mặt thành công\"}")
-                .status(PaymentStatus.SUCCESS)
-                .build();
-        paymentTransactionRepository.save(tx);
+        // 8. Create Payment Transaction Log (Only for non-CASH right now, CASH will be logged by staff)
+        if (request.getPaymentMethod() != PaymentMethod.CASH) {
+            PaymentTransaction tx = PaymentTransaction.builder()
+                    .booking(booking)
+                    .provider(null)
+                    .transactionCode("BANKING-" + bookingCode)
+                    .requestPayload(String.format("{\"method\":\"%s\",\"amount\":%s}", request.getPaymentMethod(), totalAmount))
+                    .responsePayload("{\"status\":\"SUCCESS\",\"message\":\"Giao dịch trực tuyến thành công\"}")
+                    .status(PaymentStatus.SUCCESS)
+                    .build();
+            paymentTransactionRepository.save(tx);
+        }
 
         return booking;
     }
