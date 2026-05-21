@@ -110,6 +110,7 @@
                 <button type="button" class="btn btn-danger rounded-pill px-4"
                         data-bs-toggle="modal" data-bs-target="#cancelConfirmModal"
                         th:data-action="@{/customer/booking/cancel}"
+                        th:data-booking-code="${booking.bookingCode}"
                         th:data-message="'Bạn có chắc chắn muốn hủy đơn đặt vé ' + ${booking.bookingCode} + '? Toàn bộ ghế sẽ được giải phóng ngay lập tức.'">
                     Hủy đặt vé này
                 </button>

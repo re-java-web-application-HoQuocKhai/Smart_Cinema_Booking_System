@@ -281,7 +281,7 @@ CREATE TABLE payment_transactions (
     transaction_code    VARCHAR(255),
     request_payload     TEXT,
     response_payload    TEXT,
-    status              ENUM('PENDING', 'SUCCESS', 'FAILED'),
+    status              ENUM('PENDING', 'SUCCESS', 'FAILED', 'REFUNDED'),
     created_at          TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 
     FOREIGN KEY (booking_id) REFERENCES bookings(id)
@@ -624,8 +624,8 @@ INSERT INTO showtimes (movie_id, room_id, start_time, end_time, status, base_pri
 -- Combo Solo: 59000
 -- Tổng: 209000
 
-INSERT INTO bookings (booking_code, user_id, status, subtotal_amount, discount_amount, total_amount, payment_status, payment_method, transaction_id, paid_at) VALUES
-    ('BK20260517001', 3, 'CONFIRMED', 209000.00, 0.00, 209000.00, 'SUCCESS', 'VNPAY', 'VNP14265078', '2026-05-17 07:35:00');
+INSERT INTO bookings (booking_code, user_id, status, subtotal_amount, discount_amount, total_amount, payment_status, payment_method, transaction_id, paid_at, created_at) VALUES
+    ('BK20260517001', 3, 'CONFIRMED', 209000.00, 0.00, 209000.00, 'SUCCESS', 'VNPAY', 'VNP14265078', '2026-05-17 07:35:00', '2026-05-17 07:35:00');
 
 -- Tickets cho Booking 1
 -- Room 1, seats: A1 (seat id=1), A2 (seat id=2) — xem lại seat IDs dựa trên INSERT order
@@ -651,8 +651,8 @@ INSERT INTO payment_transactions (booking_id, provider, transaction_code, reques
 -- Combo Couple: 149000
 -- Tổng: 617000
 
-INSERT INTO bookings (booking_code, user_id, status, subtotal_amount, discount_amount, total_amount, payment_status, payment_method, transaction_id, paid_at) VALUES
-    ('BK20260518001', 4, 'CONFIRMED', 617000.00, 0.00, 617000.00, 'SUCCESS', 'MOMO', 'MOMO98765432', '2026-05-18 18:20:00');
+INSERT INTO bookings (booking_code, user_id, status, subtotal_amount, discount_amount, total_amount, payment_status, payment_method, transaction_id, paid_at, created_at) VALUES
+    ('BK20260518001', 4, 'CONFIRMED', 617000.00, 0.00, 617000.00, 'SUCCESS', 'MOMO', 'MOMO98765432', '2026-05-18 18:20:00', '2026-05-18 18:20:00');
 
 -- Tickets cho Booking 2
 -- Room 3 IMAX, Row F (VIP seats): F1=seat 91, F2=seat 92, F3=seat 93
@@ -681,8 +681,8 @@ INSERT INTO payment_transactions (booking_id, provider, transaction_code, reques
 -- Ghế A5 (NORMAL) trong Room 3 IMAX
 -- Giá vé: 120000 × 1.0 = 120000
 
-INSERT INTO bookings (booking_code, user_id, status, subtotal_amount, discount_amount, total_amount, payment_status, payment_method) VALUES
-    ('BK20260520001', 3, 'PENDING_PAYMENT', 120000.00, 0.00, 120000.00, 'PENDING', 'VNPAY');
+INSERT INTO bookings (booking_code, user_id, status, subtotal_amount, discount_amount, total_amount, payment_status, payment_method, created_at) VALUES
+    ('BK20260520001', 3, 'PENDING_PAYMENT', 120000.00, 0.00, 120000.00, 'PENDING', 'VNPAY', '2026-05-20 07:30:00');
 
 -- Ticket cho Booking 3 (pending)
 -- Room 3 IMAX, A5 = seat id 60 (56 + 4)
@@ -705,8 +705,8 @@ INSERT INTO payment_transactions (booking_id, provider, transaction_code, status
 -- Ghế B3 (NORMAL) trong Room 1 Standard
 -- Giá vé: 75000 × 1.0 = 75000
 
-INSERT INTO bookings (booking_code, user_id, status, subtotal_amount, discount_amount, total_amount, payment_status, payment_method, paid_at) VALUES
-    ('BK20260521001', 5, 'CONFIRMED', 75000.00, 0.00, 75000.00, 'SUCCESS', 'CASH', '2026-05-20 10:00:00');
+INSERT INTO bookings (booking_code, user_id, status, subtotal_amount, discount_amount, total_amount, payment_status, payment_method, paid_at, created_at) VALUES
+    ('BK20260521001', 5, 'CONFIRMED', 75000.00, 0.00, 75000.00, 'SUCCESS', 'CASH', '2026-05-20 10:00:00', '2026-05-20 10:00:00');
 
 -- Ticket cho Booking 4
 -- Room 1, B3 = seat id 11 (8 + 3)
@@ -718,6 +718,83 @@ INSERT INTO tickets (booking_id, showtime_id, seat_id, ticket_status,
 -- Payment transaction cho CASH (provider = NULL, log internal)
 INSERT INTO payment_transactions (booking_id, provider, transaction_code, request_payload, status) VALUES
     (4, NULL, 'CASH-BK20260521001', '{"method":"CASH","cashier":"staff01@cinema.vn"}', 'SUCCESS');
+
+-- ================================================================
+-- THÊM DỮ LIỆU MOCK 15 BOOKINGS CHO DASHBOARD (THÁNG 1-4/2026)
+-- ================================================================
+
+-- Thêm 4 suất chiếu giả lập đã qua cho các tháng trước
+INSERT INTO showtimes (id, movie_id, room_id, start_time, end_time, status, base_price) VALUES
+    (101, 1, 1, '2026-01-15 19:00:00', '2026-01-15 21:30:00', 'FINISHED', 75000.00), -- T1/2026
+    (102, 2, 3, '2026-02-14 20:00:00', '2026-02-14 22:30:00', 'FINISHED', 120000.00), -- T2/2026
+    (103, 3, 2, '2026-03-08 18:00:00', '2026-03-08 20:45:00', 'FINISHED', 150000.00), -- T3/2026
+    (104, 4, 1, '2026-04-30 10:00:00', '2026-04-30 12:15:00', 'FINISHED', 75000.00);  -- T4/2026
+
+-- Thêm Bookings
+INSERT INTO bookings (id, booking_code, user_id, status, subtotal_amount, discount_amount, total_amount, payment_status, payment_method, paid_at, created_at) VALUES
+    -- Tháng 1 (4 bookings, tổng = 300k)
+    (1001, 'BK20260115001', 3, 'CONFIRMED', 75000.00, 0, 75000.00, 'SUCCESS', 'VNPAY', '2026-01-15 10:00:00', '2026-01-15 10:00:00'),
+    (1002, 'BK20260115002', 4, 'CONFIRMED', 75000.00, 0, 75000.00, 'SUCCESS', 'MOMO', '2026-01-15 10:30:00', '2026-01-15 10:30:00'),
+    (1003, 'BK20260115003', 5, 'CONFIRMED', 75000.00, 0, 75000.00, 'SUCCESS', 'CASH', '2026-01-15 18:30:00', '2026-01-15 18:30:00'),
+    (1004, 'BK20260115004', 3, 'CONFIRMED', 75000.00, 0, 75000.00, 'SUCCESS', 'ZALOPAY', '2026-01-15 11:00:00', '2026-01-15 11:00:00'),
+    
+    -- Tháng 2 (3 bookings, tổng = 720k)
+    (1005, 'BK20260214001', 3, 'CONFIRMED', 240000.00, 0, 240000.00, 'SUCCESS', 'VNPAY', '2026-02-14 09:00:00', '2026-02-14 09:00:00'),
+    (1006, 'BK20260214002', 4, 'CONFIRMED', 240000.00, 0, 240000.00, 'SUCCESS', 'MOMO', '2026-02-14 14:00:00', '2026-02-14 14:00:00'),
+    (1007, 'BK20260214003', 5, 'CONFIRMED', 240000.00, 0, 240000.00, 'SUCCESS', 'BANKING', '2026-02-14 15:30:00', '2026-02-14 15:30:00'),
+
+    -- Tháng 3 (4 bookings, tổng = 900k)
+    (1008, 'BK20260308001', 4, 'CONFIRMED', 300000.00, 0, 300000.00, 'SUCCESS', 'MOMO', '2026-03-08 10:00:00', '2026-03-08 10:00:00'),
+    (1009, 'BK20260308002', 5, 'CONFIRMED', 150000.00, 0, 150000.00, 'SUCCESS', 'CASH', '2026-03-08 17:30:00', '2026-03-08 17:30:00'),
+    (1010, 'BK20260308003', 3, 'CONFIRMED', 150000.00, 0, 150000.00, 'SUCCESS', 'VNPAY', '2026-03-08 12:00:00', '2026-03-08 12:00:00'),
+    (1011, 'BK20260308004', 3, 'CONFIRMED', 300000.00, 0, 300000.00, 'SUCCESS', 'ZALOPAY', '2026-03-08 13:00:00', '2026-03-08 13:00:00'),
+
+    -- Tháng 4 (4 bookings, tổng = 300k)
+    (1012, 'BK20260430001', 3, 'CONFIRMED', 75000.00, 0, 75000.00, 'SUCCESS', 'VNPAY', '2026-04-30 08:00:00', '2026-04-30 08:00:00'),
+    (1013, 'BK20260430002', 4, 'CONFIRMED', 75000.00, 0, 75000.00, 'SUCCESS', 'MOMO', '2026-04-30 08:30:00', '2026-04-30 08:30:00'),
+    (1014, 'BK20260430003', 5, 'CONFIRMED', 75000.00, 0, 75000.00, 'SUCCESS', 'BANKING', '2026-04-30 09:00:00', '2026-04-30 09:00:00'),
+    (1015, 'BK20260430004', 4, 'CONFIRMED', 75000.00, 0, 75000.00, 'SUCCESS', 'CASH', '2026-04-30 09:45:00', '2026-04-30 09:45:00');
+
+-- Thêm Tickets cho các bookings trên
+INSERT INTO tickets (booking_id, showtime_id, seat_id, ticket_status, cinema_name_snapshot, movie_title_snapshot, room_name_snapshot, seat_label_snapshot, seat_type_snapshot, showtime_snapshot, unit_price_snapshot) VALUES
+    -- Tháng 1
+    (1001, 101, 1, 'USED', 'CGV Vincom Center', 'Huyền Thoại Biển Xanh', 'Phòng 1', 'A1', 'NORMAL', '2026-01-15 19:00:00', 75000.00),
+    (1002, 101, 2, 'USED', 'CGV Vincom Center', 'Huyền Thoại Biển Xanh', 'Phòng 1', 'A2', 'NORMAL', '2026-01-15 19:00:00', 75000.00),
+    (1003, 101, 3, 'USED', 'CGV Vincom Center', 'Huyền Thoại Biển Xanh', 'Phòng 1', 'A3', 'NORMAL', '2026-01-15 19:00:00', 75000.00),
+    (1004, 101, 4, 'USED', 'CGV Vincom Center', 'Huyền Thoại Biển Xanh', 'Phòng 1', 'A4', 'NORMAL', '2026-01-15 19:00:00', 75000.00),
+    
+    -- Tháng 2
+    (1005, 102, 129, 'USED', 'CGV Vincom Center', 'Mắt Biếc 2', 'Phòng 3', 'A1', 'NORMAL', '2026-02-14 20:00:00', 120000.00),
+    (1005, 102, 130, 'USED', 'CGV Vincom Center', 'Mắt Biếc 2', 'Phòng 3', 'A2', 'NORMAL', '2026-02-14 20:00:00', 120000.00),
+    (1006, 102, 131, 'USED', 'CGV Vincom Center', 'Mắt Biếc 2', 'Phòng 3', 'A3', 'NORMAL', '2026-02-14 20:00:00', 120000.00),
+    (1006, 102, 132, 'USED', 'CGV Vincom Center', 'Mắt Biếc 2', 'Phòng 3', 'A4', 'NORMAL', '2026-02-14 20:00:00', 120000.00),
+    (1007, 102, 133, 'USED', 'CGV Vincom Center', 'Mắt Biếc 2', 'Phòng 3', 'B1', 'NORMAL', '2026-02-14 20:00:00', 120000.00),
+    (1007, 102, 134, 'USED', 'CGV Vincom Center', 'Mắt Biếc 2', 'Phòng 3', 'B2', 'NORMAL', '2026-02-14 20:00:00', 120000.00),
+    
+    -- Tháng 3
+    (1008, 103, 65, 'USED', 'CGV Vincom Center', 'Siêu Anh Hùng Sài Gòn', 'Phòng 2', 'A1', 'VIP', '2026-03-08 18:00:00', 150000.00),
+    (1008, 103, 66, 'USED', 'CGV Vincom Center', 'Siêu Anh Hùng Sài Gòn', 'Phòng 2', 'A2', 'VIP', '2026-03-08 18:00:00', 150000.00),
+    (1009, 103, 67, 'USED', 'CGV Vincom Center', 'Siêu Anh Hùng Sài Gòn', 'Phòng 2', 'A3', 'VIP', '2026-03-08 18:00:00', 150000.00),
+    (1010, 103, 68, 'USED', 'CGV Vincom Center', 'Siêu Anh Hùng Sài Gòn', 'Phòng 2', 'A4', 'VIP', '2026-03-08 18:00:00', 150000.00),
+    (1011, 103, 69, 'USED', 'CGV Vincom Center', 'Siêu Anh Hùng Sài Gòn', 'Phòng 2', 'B1', 'VIP', '2026-03-08 18:00:00', 150000.00),
+    (1011, 103, 70, 'USED', 'CGV Vincom Center', 'Siêu Anh Hùng Sài Gòn', 'Phòng 2', 'B2', 'VIP', '2026-03-08 18:00:00', 150000.00),
+    
+    -- Tháng 4
+    (1012, 104, 1, 'USED', 'CGV Vincom Center', 'Đảo Kỳ Bí', 'Phòng 1', 'A1', 'NORMAL', '2026-04-30 10:00:00', 75000.00),
+    (1013, 104, 2, 'USED', 'CGV Vincom Center', 'Đảo Kỳ Bí', 'Phòng 1', 'A2', 'NORMAL', '2026-04-30 10:00:00', 75000.00),
+    (1014, 104, 3, 'USED', 'CGV Vincom Center', 'Đảo Kỳ Bí', 'Phòng 1', 'A3', 'NORMAL', '2026-04-30 10:00:00', 75000.00),
+    (1015, 104, 4, 'USED', 'CGV Vincom Center', 'Đảo Kỳ Bí', 'Phòng 1', 'A4', 'NORMAL', '2026-04-30 10:00:00', 75000.00);
+
+-- Thêm Payment Transactions
+INSERT INTO payment_transactions (booking_id, provider, transaction_code, request_payload, status) VALUES
+    (1001, 'VNPAY', 'TX1001', '{}', 'SUCCESS'), (1002, 'MOMO', 'TX1002', '{}', 'SUCCESS'),
+    (1003, NULL, 'TX1003', '{}', 'SUCCESS'), (1004, 'ZALOPAY', 'TX1004', '{}', 'SUCCESS'),
+    (1005, 'VNPAY', 'TX1005', '{}', 'SUCCESS'), (1006, 'MOMO', 'TX1006', '{}', 'SUCCESS'),
+    (1007, 'BANKING', 'TX1007', '{}', 'SUCCESS'), (1008, 'MOMO', 'TX1008', '{}', 'SUCCESS'),
+    (1009, NULL, 'TX1009', '{}', 'SUCCESS'), (1010, 'VNPAY', 'TX1010', '{}', 'SUCCESS'),
+    (1011, 'ZALOPAY', 'TX1011', '{}', 'SUCCESS'), (1012, 'VNPAY', 'TX1012', '{}', 'SUCCESS'),
+    (1013, 'MOMO', 'TX1013', '{}', 'SUCCESS'), (1014, 'BANKING', 'TX1014', '{}', 'SUCCESS'),
+    (1015, NULL, 'TX1015', '{}', 'SUCCESS');
 
 -- ================================================================
 -- END OF SEED DATA
@@ -732,3 +809,4 @@ UPDATE movies SET poster_url = 'https://picsum.photos/seed/mysterious-island/400
 UPDATE movies SET poster_url = 'https://picsum.photos/seed/little-robot/400/600' WHERE poster_url = '/images/movies/robot-nhi.jpg';
 UPDATE movies SET poster_url = 'https://picsum.photos/seed/night-hunter/400/600' WHERE poster_url = '/images/movies/ke-san-bong-dem.jpg';
 UPDATE movies SET poster_url = 'https://picsum.photos/seed/rain-love/400/600' WHERE poster_url = '/images/movies/tinh-yeu-trong-mua.jpg';
+UPDATE movies SET poster_url = 'https://tse4.mm.bing.net/th/id/OIP.-yAFCzR3EJFUEFeF03CpzQHaEK?pid=Api&h=220&P=0' WHERE poster_url = '/images/movies/vuot-thoi-gian.jpg';

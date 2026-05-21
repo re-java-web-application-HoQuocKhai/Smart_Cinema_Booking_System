@@ -36,11 +36,5 @@ out/
 ### VS Code ###
 .vscode/
 
-
-.SRS Template - Hệ thống Đặt vé Rạp chiếu phim
-
-.implementation_plan
-
-.UIUXRefactore
-
-.core56
+*.md
+!HELP.md.md

@@ -47,4 +47,12 @@ public interface ShowtimeRepository extends JpaRepository<Showtime, Long> {
         @Param("excludeId") Long excludeId,
         @Param("cancelledStatus") ShowtimeStatus cancelledStatus
     );
+
+    @org.springframework.data.jpa.repository.Modifying
+    @Query("UPDATE Showtime s SET s.status = 'STARTED' WHERE s.status IN ('SCHEDULED', 'BOOKING_OPEN') AND s.startTime <= :now AND s.endTime > :now")
+    int updateStatusToStarted(@Param("now") LocalDateTime now);
+
+    @org.springframework.data.jpa.repository.Modifying
+    @Query("UPDATE Showtime s SET s.status = 'FINISHED' WHERE s.status NOT IN ('FINISHED', 'CANCELLED') AND s.endTime <= :now")
+    int updateStatusToFinished(@Param("now") LocalDateTime now);
 }

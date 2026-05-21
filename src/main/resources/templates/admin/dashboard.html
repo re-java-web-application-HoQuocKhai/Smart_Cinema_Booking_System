@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/common :: head('Smart Cinema - Dashboard Thống kê')}"></head>
+<body class="bg-dark-gradient">
+    <nav th:replace="~{fragments/common :: navbar}"></nav>
+
+    <div class="container-fluid py-4 px-4 px-lg-5">
+        <!-- Header Section & Filters -->
+        <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
+            <div>
+                <h1 class="text-gradient mb-1"><i class="bi bi-speedometer2"></i> Dashboard Thống kê</h1>
+                <p class="text-white-50 mb-0">Tổng quan tình hình kinh doanh và doanh thu của hệ thống.</p>
+            </div>
+            
+            <!-- Filters -->
+            <div class="card bg-dark-card rounded-pill px-4 py-2 shadow-sm border-secondary border-opacity-25">
+                <form id="filterForm" th:action="@{/admin/dashboard}" method="get" class="d-flex align-items-center gap-3 m-0">
+                    <div class="d-flex align-items-center gap-2">
+                        <label for="yearFilter" class="text-white-50 fw-semibold text-nowrap small mb-0"><i class="bi bi-calendar-check me-1"></i>Năm:</label>
+                        <select id="yearFilter" name="year" class="form-select form-select-sm bg-black bg-opacity-50 text-white border-secondary border-opacity-25 rounded-pill w-auto" onchange="document.getElementById('filterForm').submit()">
+                            <option value="">Tất cả các năm</option>
+                            <option th:each="y : ${availableYears}" th:value="${y}" th:text="${y}" th:selected="${y == selectedYear}"></option>
+                        </select>
+                    </div>
+                    <div class="d-flex align-items-center gap-2">
+                        <label for="quarterFilter" class="text-white-50 fw-semibold text-nowrap small mb-0"><i class="bi bi-pie-chart me-1"></i>Quý:</label>
+                        <select id="quarterFilter" name="quarter" class="form-select form-select-sm bg-black bg-opacity-50 text-white border-secondary border-opacity-25 rounded-pill w-auto" onchange="document.getElementById('filterForm').submit()">
+                            <option value="">Cả năm</option>
+                            <option value="1" th:selected="${selectedQuarter == 1}">Quý 1 (Tháng 1-3)</option>
+                            <option value="2" th:selected="${selectedQuarter == 2}">Quý 2 (Tháng 4-6)</option>
+                            <option value="3" th:selected="${selectedQuarter == 3}">Quý 3 (Tháng 7-9)</option>
+                            <option value="4" th:selected="${selectedQuarter == 4}">Quý 4 (Tháng 10-12)</option>
+                        </select>
+                    </div>
+                    <a th:if="${selectedYear != null || selectedQuarter != null}" th:href="@{/admin/dashboard}" class="btn btn-sm btn-outline-danger rounded-pill px-3 ms-2">
+                        <i class="bi bi-x-circle me-1"></i>Xóa lọc
+                    </a>
+                </form>
+            </div>
+        </div>
+
+        <!-- KPI Cards Row -->
+        <div class="row g-4 mb-4">
+            <!-- Doanh thu -->
+            <div class="col-sm-6 col-xl-3">
+                <div class="card glass-panel h-100 border-0 position-relative overflow-hidden group">
+                    <div class="position-absolute top-0 end-0 p-3 opacity-25">
+                        <i class="bi bi-wallet2 display-3 text-white"></i>
+                    </div>
+                    <div class="card-body position-relative z-1">
+                        <p class="text-white-50 fw-semibold text-uppercase tracking-wider mb-2" style="font-size: 0.85rem;">Tổng Doanh thu</p>
+                        <h2 class="text-white fw-bold mb-0 text-gradient" th:text="${#numbers.formatDecimal(totalRevenue, 0, 'COMMA', 0, 'POINT')} + ' ₫'">0 ₫</h2>
+                        <div class="mt-3 text-white-50 small">
+                            <span class="badge bg-success bg-opacity-25 text-success rounded-pill px-2 py-1"><i class="bi bi-arrow-up-right me-1"></i>+12%</span>
+                            <span class="ms-2">so với kỳ trước</span>
+                        </div>
+                    </div>
+                    <div class="position-absolute bottom-0 start-0 w-100" style="height: 4px; background: linear-gradient(90deg, #ff007f, #d8006b);"></div>
+                </div>
+            </div>
+            
+            <!-- Vé đã bán -->
+            <div class="col-sm-6 col-xl-3">
+                <div class="card glass-panel h-100 border-0 position-relative overflow-hidden group">
+                    <div class="position-absolute top-0 end-0 p-3 opacity-25">
+                        <i class="bi bi-ticket-perforated display-3 text-white"></i>
+                    </div>
+                    <div class="card-body position-relative z-1">
+                        <p class="text-white-50 fw-semibold text-uppercase tracking-wider mb-2" style="font-size: 0.85rem;">Vé đã bán</p>
+                        <h2 class="text-white fw-bold mb-0" style="color: #00f0ff !important;" th:text="${#numbers.formatDecimal(totalTicketsSold, 0, 'COMMA', 0, 'POINT')}">0</h2>
+                        <div class="mt-3 text-white-50 small">
+                            <span class="badge bg-success bg-opacity-25 text-success rounded-pill px-2 py-1"><i class="bi bi-arrow-up-right me-1"></i>+5.2%</span>
+                            <span class="ms-2">so với kỳ trước</span>
+                        </div>
+                    </div>
+                    <div class="position-absolute bottom-0 start-0 w-100" style="height: 4px; background: linear-gradient(90deg, #00f0ff, #00b8ff);"></div>
+                </div>
+            </div>
+
+            <!-- Đơn đặt vé -->
+            <div class="col-sm-6 col-xl-3">
+                <div class="card glass-panel h-100 border-0 position-relative overflow-hidden group">
+                    <div class="position-absolute top-0 end-0 p-3 opacity-25">
+                        <i class="bi bi-receipt display-3 text-white"></i>
+                    </div>
+                    <div class="card-body position-relative z-1">
+                        <p class="text-white-50 fw-semibold text-uppercase tracking-wider mb-2" style="font-size: 0.85rem;">Đơn hoàn tất</p>
+                        <h2 class="text-white fw-bold mb-0" style="color: #ffb81c !important;" th:text="${#numbers.formatDecimal(totalBookings, 0, 'COMMA', 0, 'POINT')}">0</h2>
+                        <div class="mt-3 text-white-50 small">
+                            <span class="badge bg-secondary bg-opacity-25 text-white-50 rounded-pill px-2 py-1"><i class="bi bi-dash me-1"></i>+0%</span>
+                            <span class="ms-2">ổn định</span>
+                        </div>
+                    </div>
+                    <div class="position-absolute bottom-0 start-0 w-100" style="height: 4px; background: linear-gradient(90deg, #ffb81c, #ff9000);"></div>
+                </div>
+            </div>
+
+            <!-- Khách hàng -->
+            <div class="col-sm-6 col-xl-3">
+                <div class="card glass-panel h-100 border-0 position-relative overflow-hidden group">
+                    <div class="position-absolute top-0 end-0 p-3 opacity-25">
+                        <i class="bi bi-people display-3 text-white"></i>
+                    </div>
+                    <div class="card-body position-relative z-1">
+                        <p class="text-white-50 fw-semibold text-uppercase tracking-wider mb-2" style="font-size: 0.85rem;">Tổng Khách hàng</p>
+                        <h2 class="text-white fw-bold mb-0" style="color: #b057ff !important;" th:text="${#numbers.formatDecimal(totalCustomers, 0, 'COMMA', 0, 'POINT')}">0</h2>
+                        <div class="mt-3 text-white-50 small">
+                            <i class="bi bi-info-circle me-1"></i> Số tài khoản đang hoạt động
+                        </div>
+                    </div>
+                    <div class="position-absolute bottom-0 start-0 w-100" style="height: 4px; background: linear-gradient(90deg, #b057ff, #7f00ff);"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Charts Row 1 -->
+        <div class="row g-4 mb-4">
+            <!-- Doanh thu theo tháng -->
+            <div class="col-lg-8">
+                <div class="card bg-dark-card h-100 rounded-4 shadow-lg border border-secondary border-opacity-10 overflow-hidden">
+                    <div class="card-header bg-transparent border-bottom border-secondary border-opacity-10 py-3">
+                        <h5 class="text-white mb-0 fw-bold"><i class="bi bi-bar-chart-line text-primary me-2"></i> Doanh thu theo tháng</h5>
+                    </div>
+                    <div class="card-body p-4 position-relative">
+                        <canvas id="monthlyRevenueChart" height="300"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Top 5 Phim -->
+            <div class="col-lg-4">
+                <div class="card bg-dark-card h-100 rounded-4 shadow-lg border border-secondary border-opacity-10 overflow-hidden">
+                    <div class="card-header bg-transparent border-bottom border-secondary border-opacity-10 py-3">
+                        <h5 class="text-white mb-0 fw-bold"><i class="bi bi-trophy text-warning me-2"></i> Top Phim có doanh thu cao</h5>
+                    </div>
+                    <div class="card-body p-4 position-relative">
+                        <canvas id="topMoviesChart" height="300"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Charts Row 2 -->
+        <div class="row g-4 mb-4">
+            <!-- Booking 30 ngày qua -->
+            <div class="col-lg-8">
+                <div class="card bg-dark-card h-100 rounded-4 shadow-lg border border-secondary border-opacity-10 overflow-hidden">
+                    <div class="card-header bg-transparent border-bottom border-secondary border-opacity-10 py-3 d-flex justify-content-between align-items-center">
+                        <h5 class="text-white mb-0 fw-bold"><i class="bi bi-graph-up text-info me-2"></i> Lượng đặt vé 30 ngày gần nhất</h5>
+                        <span class="badge bg-secondary bg-opacity-25 text-white-50">Không phụ thuộc bộ lọc năm/quý</span>
+                    </div>
+                    <div class="card-body p-4 position-relative">
+                        <canvas id="dailyBookingChart" height="250"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tỉ trọng rạp -->
+            <div class="col-lg-4">
+                <div class="card bg-dark-card h-100 rounded-4 shadow-lg border border-secondary border-opacity-10 overflow-hidden">
+                    <div class="card-header bg-transparent border-bottom border-secondary border-opacity-10 py-3">
+                        <h5 class="text-white mb-0 fw-bold"><i class="bi bi-pie-chart text-success me-2"></i> Tỷ trọng Doanh thu rạp</h5>
+                    </div>
+                    <div class="card-body p-4 d-flex align-items-center justify-content-center">
+                        <div style="width: 100%; max-width: 300px;">
+                            <canvas id="cinemaRevenueChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Chart.js Library -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
+    
+    <!-- Render Charts Data & Config -->
+    <script th:inline="javascript">
+        /*<![CDATA[*/
+        // Lấy JSON data từ model
+        const monthlyData = JSON.parse(/*[[${monthlyRevenueJson}]]*/ '[]');
+        const topMoviesData = JSON.parse(/*[[${topMoviesJson}]]*/ '[]');
+        const cinemaData = JSON.parse(/*[[${cinemaRevenueJson}]]*/ '[]');
+        const dailyData = JSON.parse(/*[[${dailyBookingsJson}]]*/ '[]');
+
+        // Global Chart Defaults cho Dark Theme Cyberpunk
+        Chart.defaults.color = 'rgba(255, 255, 255, 0.5)';
+        Chart.defaults.font.family = "'Inter', sans-serif";
+        const gridColor = 'rgba(255, 255, 255, 0.05)';
+        const tooltipConfig = {
+            backgroundColor: 'rgba(22, 26, 43, 0.95)',
+            titleColor: '#fff',
+            bodyColor: 'rgba(255, 255, 255, 0.7)',
+            borderColor: 'rgba(255, 255, 255, 0.1)',
+            borderWidth: 1,
+            padding: 12,
+            boxPadding: 6,
+            usePointStyle: true,
+            titleFont: { size: 14, family: "'Outfit', sans-serif", weight: 'bold' },
+            callbacks: {
+                label: function(context) {
+                    let label = context.dataset.label || '';
+                    if (label) {
+                        label += ': ';
+                    }
+                    if (context.parsed.y !== null && context.dataset.yAxisID !== 'y1') {
+                        // Format VNĐ
+                        label += new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(context.parsed.y || context.parsed);
+                    } else if (context.dataset.yAxisID === 'y1') {
+                        label += context.parsed.y + ' lượt';
+                    }
+                    return label;
+                }
+            }
+        };
+
+        // 1. Monthly Revenue Chart (Bar)
+        if (document.getElementById('monthlyRevenueChart')) {
+            const ctx1 = document.getElementById('monthlyRevenueChart').getContext('2d');
+            
+            // Generate Gradient
+            const gradientPink = ctx1.createLinearGradient(0, 0, 0, 400);
+            gradientPink.addColorStop(0, 'rgba(255, 0, 127, 0.8)');
+            gradientPink.addColorStop(1, 'rgba(255, 0, 127, 0.2)');
+
+            new Chart(ctx1, {
+                type: 'bar',
+                data: {
+                    labels: monthlyData.map(d => d.monthLabel),
+                    datasets: [{
+                        label: 'Doanh thu (VNĐ)',
+                        data: monthlyData.map(d => d.totalRevenue),
+                        backgroundColor: gradientPink,
+                        borderColor: '#ff007f',
+                        borderWidth: 1,
+                        borderRadius: 6,
+                        yAxisID: 'y'
+                    },
+                    {
+                        label: 'Số đơn vé',
+                        data: monthlyData.map(d => d.bookingCount),
+                        type: 'line',
+                        borderColor: '#00f0ff',
+                        backgroundColor: '#00f0ff',
+                        borderWidth: 2,
+                        tension: 0.4,
+                        pointBackgroundColor: '#07080c',
+                        pointBorderColor: '#00f0ff',
+                        pointBorderWidth: 2,
+                        pointRadius: 4,
+                        yAxisID: 'y1'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    interaction: { mode: 'index', intersect: false },
+                    plugins: { 
+                        legend: { position: 'top', labels: { usePointStyle: true, boxWidth: 8 } },
+                        tooltip: tooltipConfig
+                    },
+                    scales: {
+                        x: { grid: { color: 'transparent' } },
+                        y: { 
+                            type: 'linear', display: true, position: 'left',
+                            grid: { color: gridColor },
+                            ticks: { callback: value => (value / 1000000) + ' Tr' }
+                        },
+                        y1: { 
+                            type: 'linear', display: true, position: 'right',
+                            grid: { drawOnChartArea: false },
+                            ticks: { precision: 0 }
+                        }
+                    }
+                }
+            });
+        }
+
+        // 2. Top Movies Chart (Horizontal Bar)
+        if (document.getElementById('topMoviesChart')) {
+            const ctx2 = document.getElementById('topMoviesChart').getContext('2d');
+            
+            const gradientCyan = ctx2.createLinearGradient(400, 0, 0, 0);
+            gradientCyan.addColorStop(0, 'rgba(0, 240, 255, 0.8)');
+            gradientCyan.addColorStop(1, 'rgba(0, 240, 255, 0.2)');
+
+            new Chart(ctx2, {
+                type: 'bar',
+                data: {
+                    labels: topMoviesData.map(d => d.movieTitle.length > 20 ? d.movieTitle.substring(0, 20) + '...' : d.movieTitle),
+                    datasets: [{
+                        label: 'Doanh thu',
+                        data: topMoviesData.map(d => d.totalRevenue),
+                        backgroundColor: gradientCyan,
+                        borderColor: '#00f0ff',
+                        borderWidth: 1,
+                        borderRadius: 4
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { 
+                        legend: { display: false },
+                        tooltip: tooltipConfig
+                    },
+                    scales: {
+                        x: { grid: { color: gridColor }, ticks: { display: false } },
+                        y: { grid: { color: 'transparent' } }
+                    }
+                }
+            });
+        }
+
+        // 3. Daily Bookings Chart (Line)
+        if (document.getElementById('dailyBookingChart')) {
+            const ctx3 = document.getElementById('dailyBookingChart').getContext('2d');
+            
+            const gradientYellow = ctx3.createLinearGradient(0, 0, 0, 400);
+            gradientYellow.addColorStop(0, 'rgba(255, 184, 28, 0.5)');
+            gradientYellow.addColorStop(1, 'rgba(255, 184, 28, 0.0)');
+
+            new Chart(ctx3, {
+                type: 'line',
+                data: {
+                    labels: dailyData.map(d => d.dateLabel),
+                    datasets: [{
+                        label: 'Số vé đặt',
+                        data: dailyData.map(d => d.bookingCount),
+                        borderColor: '#ffb81c',
+                        backgroundColor: gradientYellow,
+                        borderWidth: 2,
+                        tension: 0.3,
+                        fill: true,
+                        pointBackgroundColor: '#07080c',
+                        pointBorderColor: '#ffb81c',
+                        pointRadius: 3,
+                        yAxisID: 'y'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    interaction: { mode: 'index', intersect: false },
+                    plugins: { 
+                        legend: { display: false },
+                        tooltip: {
+                            ...tooltipConfig,
+                            callbacks: {
+                                label: function(context) { return context.parsed.y + ' đơn đặt vé'; }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: { grid: { color: gridColor, drawBorder: false }, ticks: { maxTicksLimit: 10 } },
+                        y: { grid: { color: gridColor }, beginAtZero: true, ticks: { precision: 0 } }
+                    }
+                }
+            });
+        }
+
+        // 4. Cinema Revenue (Doughnut)
+        if (document.getElementById('cinemaRevenueChart')) {
+            const ctx4 = document.getElementById('cinemaRevenueChart').getContext('2d');
+            new Chart(ctx4, {
+                type: 'doughnut',
+                data: {
+                    labels: cinemaData.map(d => d.cinemaName),
+                    datasets: [{
+                        data: cinemaData.map(d => d.totalRevenue),
+                        backgroundColor: [
+                            '#ff007f', // Pink
+                            '#00f0ff', // Cyan
+                            '#ffb81c', // Gold
+                            '#b057ff', // Purple
+                            '#2ed573'  // Green
+                        ],
+                        borderWidth: 0,
+                        hoverOffset: 10
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    cutout: '70%',
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                color: 'rgba(255, 255, 255, 0.7)',
+                                padding: 20,
+                                usePointStyle: true,
+                                boxWidth: 8
+                            }
+                        },
+                        tooltip: tooltipConfig
+                    }
+                }
+            });
+        }
+        /*]]>*/
+    </script>
+
+    <!-- Footer & Scripts -->
+    <footer th:replace="~{fragments/common :: footer}"></footer>
+    <div th:replace="~{fragments/common :: scripts}"></div>
+</body>
+</html>

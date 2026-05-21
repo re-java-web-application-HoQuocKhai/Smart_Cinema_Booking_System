@@ -39,6 +39,9 @@
                               th:text="${session.currentUser.role}">ROLE</span>
                     </li>
                     <li class="nav-item" th:if="${session.currentUser.role.name() == 'ADMIN'}">
+                        <a class="nav-link px-3" th:href="@{/admin/dashboard}"><i class="bi bi-speedometer2 me-1"></i> Dashboard</a>
+                    </li>
+                    <li class="nav-item" th:if="${session.currentUser.role.name() == 'ADMIN'}">
                         <a class="nav-link px-3" th:href="@{/admin/movies}"><i class="bi bi-film me-1"></i> Quản lý Phim</a>
                     </li>
                     <li class="nav-item" th:if="${session.currentUser.role.name() == 'ADMIN'}">
@@ -118,6 +121,7 @@
             <div class="modal-footer border-top border-secondary border-opacity-25">
                 <button type="button" class="btn btn-outline-secondary rounded-pill px-3" data-bs-dismiss="modal">Không, giữ lại</button>
                 <form id="cancelConfirmForm" method="post" style="display: inline;">
+                    <input type="hidden" name="bookingCode" id="cancelBookingCode" value="">
                     <button type="submit" class="btn btn-danger rounded-pill px-4">Xác nhận hủy</button>
                 </form>
             </div>
@@ -156,9 +160,15 @@
                     const button = event.relatedTarget;
                     const actionUrl = button.getAttribute('data-action');
                     const message = button.getAttribute('data-message');
+                    const bookingCode = button.getAttribute('data-booking-code');
                     
                     const form = cancelModal.querySelector('#cancelConfirmForm');
                     form.setAttribute('action', actionUrl);
+                    
+                    const bookingCodeInput = cancelModal.querySelector('#cancelBookingCode');
+                    if (bookingCodeInput && bookingCode) {
+                        bookingCodeInput.value = bookingCode;
+                    }
                     
                     if (message) {
                         const body = cancelModal.querySelector('.modal-body');
